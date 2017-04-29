@@ -23,16 +23,12 @@ body {
   padding: 0.5em;
 }
 
-#drawing-background {
-  color: #DDDDDD;
-  font-family: monospace;
+#drawing-area {
   display: inline-block;
+  font-family: monospace;
   margin: 0;
 }
 
-#drawing-area {
-  display: none;
-  font-family: monospace;
-  margin: 0;
-  background-color: rgba(255,255,255,0);
+.selected {
+  background-color: #bbbbff;
 }

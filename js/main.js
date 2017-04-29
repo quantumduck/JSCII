@@ -1,11 +1,17 @@
 var drawingArea = {
-  lines: [],
-  width: 0,
-  height: 0
+  lines: ["Hello",
+          "World"],
+  width: 5,
+  height: 2
 };
 
-var numX = 100;
-var numY = 100;
+var selection = {
+  xmin: 12,
+  xmax: 15,
+  ymin: 4,
+  ymax:10
+}
+
 var cursor = {x: 0, y: 0};
 var mode = {
   text: 0,
@@ -26,28 +32,11 @@ var userChar = 'X';
 var aiChar = 'O';
 var turnNum = 0;
 
-// var lines = [];
-// var diag1 = [];
-// var diag2 = [];
-// for (var i = 0; i < gridSize; i++) {
-//   var row = [];
-//   var col = [];
-//   for (var j = 0; j < gridSize; j++) {
-//     row.push({x: i, y: j});
-//     col.push({x: j, y: i});
-//   }
-//   lines.push(row);
-//   lines.push(col);
-//   diag1.push({x: i, y: i});
-//   diag2.push({x: i, y: (gridSize - i - 1)});
-// }
-// lines.push(diag1);
-// lines.push(diag2);
-
-function drawingAreaInit(x, y) {
-  for (var i = 0; i < x; i++) {
+function drawingAreaReset(x, y) {
+  drawingArea.lines = [];
+  for (var j = 0; j < y; j++) {
     var line = [];
-    for (var j = 0; i < y; j++) {
+    for (var i = 0; i < x; i++) {
       line += ' ';
     }
     drawingArea.lines.push(line);
@@ -55,6 +44,7 @@ function drawingAreaInit(x, y) {
   drawingArea.width = x;
   drawingArea.height = y;
   redraw();
+  // console.log(drawingArea)
 }
 
 function anyOtherIndex(blackList, total) {
@@ -68,8 +58,8 @@ function anyOtherIndex(blackList, total) {
 
 function emptySquares() {
   var results = [];
-  for (var i = 0; i < numX; i++) {
-    for (var j = 0; j < numY; j++) {
+  for (var i = 0; i < drawingArea.width; i++) {
+    for (var j = 0; j < drawingArea.height; j++) {
       if (charAt(i, j) === ' ') {
         results.push({x: i, y: j});
       }
@@ -79,54 +69,54 @@ function emptySquares() {
 }
 
 function redraw() {
-  var html = "";
-  for (y = 0; y < drawingArea.height; y++) {
-    for (x = 0; x < drawingArea.width; x++) {
+  var newHTML = "";
+  for (var y = 0; y < drawingArea.height; y++) {
+    for (var x = 0; x < drawingArea.width; x++) {
+      // if ((y >= selection.ymin) && (y <= selection.ymax)) {
+      //   if (x === selection.xmin) {
+      //     newHTML += '<span class="selected">';
+      //   }
+      // }
       var char = drawingArea.lines[y][x];
       switch (char) {
         case '&':
-          html += '&amp;';
+          newHTML += '&amp;';
         break;
         case '<':
-          html += '&lt;';
+          newHTML += '&lt;';
         break;
         case '>':
-          html += '&gt;';
+          newHTML+= '&gt;';
         break;
         case ' ':
-          html += '&nbsp;';
+          newHTML += '&nbsp;';
         break;
         default:
-          html += char;
+          newHTML += char;
         break;
       }
+      // if ((y >= selection.ymin) && (y <= selection.ymax)) {
+      //   if (x === selection.xmax) {
+      //     newHTML += '</span>';
+      //   }
+      // }
     }
     if (y < drawingArea.height - 1) {
-      html += '<br>';
+      newHTML += '<br>';
     }
   }
-  $('#drawingArea').html(html);
+  // console.log(html)
+  $('#drawing-area').html(newHTML);
 }
 
-function getX(rawX) {
-  var width = numFromPixels($('#drawingArea').css('width'));
-  var offset_left = (
-    numFromPixels($('body').css('margin-left')) +
-    numFromPixels($('#drawing-container').css('padding-left')) +
-    numFromPixels($('#drawing-container').css('border-left'))
-  );
-  var x = Math.floor(drawingArea.width * (rawX - offset_left) / width);
-  return x;
-}
-
-function getY(rawY) {
-  var height =  numFromPixels($('#drawingArea').css('height'));
-  var offset_top = (
+function getOffset() {
+  var height =  numFromPixels($('#drawing-area').css('height'));
+  var offsetTop = (
     numFromPixels($('body').css('margin-top')) +
     numFromPixels($('h1').css('margin-top')) +
     numFromPixels($('h1').css('height')) +
     Math.max(
-      numFromPixels($('hl').css('margin-bottom')),
+      numFromPixels($('h1').css('margin-bottom')),
       numFromPixels($('.messages').css('margin-top'))
     ) +
     numFromPixels($('.messages').css('height')) +
@@ -134,22 +124,36 @@ function getY(rawY) {
     numFromPixels($('#drawing-container').css('padding-top')) +
     numFromPixels($('#drawing-container').css('border-top'))
   );
-  var y = Math.floor(drawingArea.height * (rawY - offset_top) / height);
-  return y;
+  var width = numFromPixels($('#drawing-area').css('width'));
+  var offsetLeft = (
+    numFromPixels($('body').css('margin-left')) +
+    numFromPixels($('#drawing-container').css('padding-left')) +
+    numFromPixels($('#drawing-container').css('border-left'))
+  );
+  return {x: offsetLeft, y: offsetTop};
+}
+
+function getXY(rawX, rawY) {
+  var width = numFromPixels($('#drawing-area').css('width'));
+  var height =  numFromPixels($('#drawing-area').css('height'));
+  var offset = getOffset();
+  var x = Math.floor(drawingArea.height * (rawY - offset.x) / height);
+  var y = Math.floor(drawingArea.height * (rawY - offset.y) / height);
+  return {x: x, y: y};
 }
 
 function numFromPixels(string) {
-  // Assuming string in the form '0px'
+  // Assuming string in the form '0px' => 0
   return Number(string.substring(0, string.indexOf('px')));
 }
 
 function addChar(char, x, y) {
-  var = drawingArea.lines[y];
+  var line = drawingArea.lines[y];
   if (
     // Do not insert control characters.
     (char.length != 1) ||
-    (char.codePoint(0) < 32) ||
-    ((char.codePoint(0) >= 127) && (char.codePoint(0) <= 255))
+    (char.codePointAt(0) < 32) ||
+    ((char.codePointAt(0) >= 127) && (char.codePointAt(0) <= 159))
   ) {
     return false;
   }
@@ -174,17 +178,16 @@ function addRandomChar() {
   } else {
     return false;
   }
-
-  while (charAt(x, y) != ' ') {
-    var x = Math.floor(Math.random() * 3);
-    var y = Math.floor(Math.random() * 3);
-  }
-  addChar(aiChar, x, y);
 }
 
 
 $(function() {
-    $('body').css('max-width', $('.drawing-container').css('width'));
+  $('body').css('max-width', $('.drawing-container').css('width'));
+  drawingAreaReset(54, 31);
+  $('#drawing-area').on('click', function(e) {
+    var location = getXY(e.clientX, e.clientY);
+    addChar('X', location.x, location.y);
+  });
   // $('body').css('max-width', $('#drawing-background').css('width'));
   // $('body').css('max-width', $('#drawing-area').css('width'));
 });
