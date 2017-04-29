@@ -1,0 +1,37 @@
+html {
+  width: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 70%;
+  margin: auto;
+  text-align: center;
+  /*text-align: center;*/
+}
+
+#drawing-container{
+  display: inline-block;
+  border: 2px solid;
+  margin: 0;
+  padding: 0.5em;
+}
+
+#drawing-background {
+  color: #DDDDDD;
+  font-family: monospace;
+  display: inline-block;
+  margin: 0;
+}
+
+#drawing-area {
+  display: none;
+  font-family: monospace;
+  margin: 0;
+  background-color: rgba(255,255,255,0);
+}
