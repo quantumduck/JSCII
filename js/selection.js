@@ -8,20 +8,28 @@ var selection = {
   xmax: 10,
   ymin: 0,
   ymax: 5,
-  set: function(x, y, n, m) {
+  set: function(x, y, diffX, diffY) {
     this.x = x;
     this.y = y;
-    this.xmin = x;
-    this.ymin = y;
-    if (n > 1) {
-      this.xmax = x + n - 1;
+    if (diffX > 0) {
+      this.xmax = x + diffX;
+      this.xmin = x;
+    } else if (diffX < 0) {
+      this.xmax = x;
+      this.xmin = x + diffX;
     } else {
       this.xmax = x;
+      this.xmin = x;
     }
-    if (m > 1) {
-      this.ymax = y + m - 1;
+    if (diffY > 0) {
+      this.ymax = y + diffY;
+      this.ymin = y;
+    } else if (diffY < 0) {
+      this.ymax = y;
+      this.ymin = y + diffY;
     } else {
       this.ymax = y;
+      this.ymin = y;
     }
     redraw();
     return this;

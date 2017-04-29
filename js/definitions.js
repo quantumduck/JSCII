@@ -1,12 +1,16 @@
 var mode = {
-  text: 0,
-  box: 1,
-  line: 2,
-  arrow: 3,
-  freeform: 4
+  overwrite: 0,
+  insert: 1,
+  select: 2,
+  move: 3,
+  resize: 4,
+  box: 5,
+  line: 6,
+  arrow: 7,
+  freeform: 8
 }
 
-var currentMode = mode.text;
+var currentMode = mode.overwrite;
 
 // This is where the ASCII data is stored:
 // There are two helper functions for getting the width and height.
