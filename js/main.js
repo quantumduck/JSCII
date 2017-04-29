@@ -27,6 +27,7 @@ var selection = {
     } else {
       this.ymax = y;
     }
+    redraw();
     return this;
   },
   size: function() {
@@ -65,7 +66,26 @@ var selection = {
         this.x = 0;
         this.y = 0;
       }
+      redraw();
     }
+  },
+  setToNextLine: function() {
+    if (this.size() === 1) {
+      if (this.y < drawingArea.height - 1) {
+        this.set(0, this.y + 1);
+      } else {
+        this.set(0, 0);
+      }
+    } else {
+      if (this.y < this.ymax) {
+        this.x = 0;
+        this.y++;
+      } else {
+        this.x = 0;
+        this.y = 0;
+      }
+    }
+    redraw();
   }
 }
 
@@ -129,9 +149,18 @@ function redraw() {
   var newHTML = "";
   for (var y = 0; y < drawingArea.height; y++) {
     for (var x = 0; x < drawingArea.width; x++) {
-      if ((y >= selection.ymin) && (y <= selection.ymax)) {
-        if (x === selection.xmin) {
+      if (selection.size() === 1) {
+        if ((x === selection.x) && (y === selection.y)) {
           newHTML += '<span class="selected">';
+        }
+      } else {
+        if ((y >= selection.ymin) && (y <= selection.ymax)) {
+          if (x === selection.xmin) {
+            newHTML += '<span class="selected">';
+          }
+          if ((x === selection.x) && (y === selection.y)) {
+            newHTML += '</span><span class="selected-inner">';
+          }
         }
       }
       var char = drawingArea.lines[y][x];
@@ -152,9 +181,18 @@ function redraw() {
           newHTML += char;
         break;
       }
-      if ((y >= selection.ymin) && (y <= selection.ymax)) {
-        if (x === selection.xmax) {
+      if (selection.size() === 1) {
+        if ((x === selection.x) && (y === selection.y)) {
           newHTML += '</span>';
+        }
+      } else {
+        if ((y >= selection.ymin) && (y <= selection.ymax)) {
+          if ((x === selection.x) && (y === selection.y)) {
+            newHTML += '</span><span class="selected">';
+          }
+          if (x === selection.xmax) {
+            newHTML += '</span>';
+          }
         }
       }
     }
@@ -250,15 +288,12 @@ $(function() {
     console.log(e.key);
     if (addChar(e.key, selection.x, selection.y)) {;
       selection.setToNext();
+    } else {
+      switch (e.key) {
+        case "Enter":
+          selection.setToNextLine();
+        break;
+      }
     }
-    // } else {
-    //   switch (e.key) {
-    //     case "Enter":
-    //       if (selection.ymin < drawingArea.height - 1) {
-    //         selection.ymin++;
-    //         selection.xmin = 0;
-    //       }
-    //   }
-    // }
   });
 });
