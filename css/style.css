@@ -27,6 +27,16 @@ body {
   display: inline-block;
   font-family: monospace;
   margin: 0;
+  border: 0;
+  padding: 0;
+  resize: none;
+  cursor: normal;
+
+}
+
+#drawing-area::selection,
+#drawing-container::selection {
+  background-color: #FFF;
 }
 
 .selected {

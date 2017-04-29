@@ -72,11 +72,11 @@ function redraw() {
   var newHTML = "";
   for (var y = 0; y < drawingArea.height; y++) {
     for (var x = 0; x < drawingArea.width; x++) {
-      // if ((y >= selection.ymin) && (y <= selection.ymax)) {
-      //   if (x === selection.xmin) {
-      //     newHTML += '<span class="selected">';
-      //   }
-      // }
+      if ((y >= selection.ymin) && (y <= selection.ymax)) {
+        if (x === selection.xmin) {
+          newHTML += '<span class="selected">';
+        }
+      }
       var char = drawingArea.lines[y][x];
       switch (char) {
         case '&':
@@ -95,11 +95,11 @@ function redraw() {
           newHTML += char;
         break;
       }
-      // if ((y >= selection.ymin) && (y <= selection.ymax)) {
-      //   if (x === selection.xmax) {
-      //     newHTML += '</span>';
-      //   }
-      // }
+      if ((y >= selection.ymin) && (y <= selection.ymax)) {
+        if (x === selection.xmax) {
+          newHTML += '</span>';
+        }
+      }
     }
     if (y < drawingArea.height - 1) {
       newHTML += '<br>';
@@ -138,7 +138,6 @@ function getXY(rawX, rawY) {
   var width = numFromPixels($('#drawing-area').css('width'));
   var height =  numFromPixels($('#drawing-area').css('height'));
   var offset = getOffset();
-  console.log(offset)
   var x = Math.floor((drawingArea.width * (rawX - offset.left)) / width);
   var y = Math.floor((drawingArea.height * (rawY - offset.top)) / height);
   return {x: x, y: y};
@@ -187,10 +186,14 @@ $(function() {
   drawingAreaReset(54, 31);
   $('#drawing-area').on('click', function(e) {
     var location = getXY(e.clientX, e.clientY);
-    console.log('Raw: ('+ e.clientX + ', '+ e.clientY + ')');
-    console.log(location)
-    addChar('X', location.x, location.y);
+    addChar('#', location.x, location.y);
+    selection.xmin = location.x;
+    selection.xmax = location.x;
+    selection.ymin = location.y;
+    selection.ymax = location.y;
+    redraw();
   });
-  // $('body').css('max-width', $('#drawing-background').css('width'));
-  // $('body').css('max-width', $('#drawing-area').css('width'));
+  $('#drawing-area').keyup(function(e) {
+    console.log(e);
+  });
 });
