@@ -107,6 +107,7 @@ function redraw() {
   }
   // console.log(html)
   $('#drawing-area').html(newHTML);
+  $('body').css('max-width', $('#drawing-container').css('width'));
 }
 
 function getOffset() {
@@ -130,15 +131,16 @@ function getOffset() {
     numFromPixels($('#drawing-container').css('padding-left')) +
     numFromPixels($('#drawing-container').css('border-left'))
   );
-  return {x: offsetLeft, y: offsetTop};
+  return {left: offsetLeft, top: offsetTop};
 }
 
 function getXY(rawX, rawY) {
   var width = numFromPixels($('#drawing-area').css('width'));
   var height =  numFromPixels($('#drawing-area').css('height'));
   var offset = getOffset();
-  var x = Math.floor(drawingArea.height * (rawY - offset.x) / height);
-  var y = Math.floor(drawingArea.height * (rawY - offset.y) / height);
+  console.log(offset)
+  var x = Math.floor((drawingArea.width * (rawX - offset.left)) / width);
+  var y = Math.floor((drawingArea.height * (rawY - offset.top)) / height);
   return {x: x, y: y};
 }
 
@@ -182,10 +184,11 @@ function addRandomChar() {
 
 
 $(function() {
-  $('body').css('max-width', $('.drawing-container').css('width'));
   drawingAreaReset(54, 31);
   $('#drawing-area').on('click', function(e) {
     var location = getXY(e.clientX, e.clientY);
+    console.log('Raw: ('+ e.clientX + ', '+ e.clientY + ')');
+    console.log(location)
     addChar('X', location.x, location.y);
   });
   // $('body').css('max-width', $('#drawing-background').css('width'));
