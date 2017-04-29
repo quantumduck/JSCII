@@ -193,7 +193,19 @@ $(function() {
     selection.ymax = location.y;
     redraw();
   });
-  $('#drawing-area').keyup(function(e) {
-    console.log(e);
+  $(window).on('keyup', function(e) {
+    if (addChar(e.key, selection.xmin, selection.ymin)) {;
+      if (selection.xmin < drawingArea.width - 1) {
+        selection.xmin++;
+      } else if (selection.ymin < drawingArea.height - 1) {
+        selection.ymin++;
+        selection.xmin = 0;
+      } else {
+        selection.xmin = 0;
+        selection.ymin = 0;
+      }
+      selection.xmax = selection.xmin;
+      selection.ymax = selection.ymin;
+    }
   });
 });

@@ -31,7 +31,6 @@ body {
   padding: 0;
   resize: none;
   cursor: normal;
-
 }
 
 #drawing-area::selection,
