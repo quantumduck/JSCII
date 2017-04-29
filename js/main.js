@@ -6,10 +6,67 @@ var drawingArea = {
 };
 
 var selection = {
-  xmin: 12,
-  xmax: 15,
-  ymin: 4,
-  ymax:10
+  x: 0,
+  y: 0,
+  xmin: 0,
+  xmax: 10,
+  ymin: 0,
+  ymax: 5,
+  set: function(x, y, n, m) {
+    this.x = x;
+    this.y = y;
+    this.xmin = x;
+    this.ymin = y;
+    if (n > 1) {
+      this.xmax = x + n - 1;
+    } else {
+      this.xmax = x;
+    }
+    if (m > 1) {
+      this.ymax = y + m - 1;
+    } else {
+      this.ymax = y;
+    }
+    return this;
+  },
+  size: function() {
+    return (this.ymax - this.ymin + 1) * (this.xmax - this.xmin + 1);
+  },
+  first: function() {
+    if (this.size() === 1) {
+      return {x: 0, y: 0};
+    } else {
+      return {x: this.xmin, y: this.ymin};
+    }
+  },
+  last: function() {
+    if (this.size() === 1) {
+      return {x: drawingArea.width - 1, y: drawingArea.height - 1};
+    } else {
+      return {x: this.xmax, y: this.ymax}
+    }
+  },
+  setToNext: function() {
+    if (this.size() === 1) {
+      if (this.x < drawingArea.width - 1) {
+        this.set(this.x + 1, this.y);
+      } else if (this.y < drawingArea.height - 1) {
+        this.set(0, this.y + 1);
+      } else {
+        this.set(0, 0);
+      }
+    } else {
+      if (this.x < this.xmax) {
+        this.x++;
+      } else if (this.y < this.ymax) {
+        this.x = 0;
+        this.y++;
+      } else {
+        this.x = 0;
+        this.y = 0;
+      }
+    }
+  }
 }
 
 var cursor = {x: 0, y: 0};
@@ -186,26 +243,22 @@ $(function() {
   drawingAreaReset(54, 31);
   $('#drawing-area').on('click', function(e) {
     var location = getXY(e.clientX, e.clientY);
-    addChar('#', location.x, location.y);
-    selection.xmin = location.x;
-    selection.xmax = location.x;
-    selection.ymin = location.y;
-    selection.ymax = location.y;
+    selection.set(location.x, location.y);
     redraw();
   });
   $(window).on('keyup', function(e) {
-    if (addChar(e.key, selection.xmin, selection.ymin)) {;
-      if (selection.xmin < drawingArea.width - 1) {
-        selection.xmin++;
-      } else if (selection.ymin < drawingArea.height - 1) {
-        selection.ymin++;
-        selection.xmin = 0;
-      } else {
-        selection.xmin = 0;
-        selection.ymin = 0;
-      }
-      selection.xmax = selection.xmin;
-      selection.ymax = selection.ymin;
+    console.log(e.key);
+    if (addChar(e.key, selection.x, selection.y)) {;
+      selection.setToNext();
     }
+    // } else {
+    //   switch (e.key) {
+    //     case "Enter":
+    //       if (selection.ymin < drawingArea.height - 1) {
+    //         selection.ymin++;
+    //         selection.xmin = 0;
+    //       }
+    //   }
+    // }
   });
 });
