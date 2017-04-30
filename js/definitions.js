@@ -42,8 +42,37 @@ function rootAreaInit(width, height) {
     height: content.length,
     offset: {left: 0, top: 0},
     children: [],
-    indices: [],
-    claimed: false
+    traceBack: [],
+    claimed: false,
+
+    newChild: function(selection) {
+      // assume a valid selection.
+      var output = this;
+      var child = this;
+      var childContent = [];
+      var index = output.children.length;
+      for (var y = selection.ymin; y <= selection.ymax; y++) {
+        childContent.push('');
+        var blankLine = '';
+        for (var x = selection.xmin; x <= selection.xmax; x++) {
+          childContent[y - selection.ymin][x - selection.xmin] += output.lines[y][x];
+          blankLine += '';
+        }
+        output.lines[y] = blankLine;
+      }
+      child.line = childContent;
+      child.width = child.lines[0].length;
+      child.height = child.lines.length;
+      child.offset = {left: selection.xmin, top: selection.ymin};
+      child.children = [];
+      child.claimed = true;
+      child.traceBack.push(index);
+      output.children.push(child);
+      return output;
+    },
+
+
+
   };
 }
 
@@ -69,7 +98,7 @@ function newChild(parent, selection) {
   var output = parent;
   var childContent = [];
   var indices = parent.indices;
-  
+
 
   index = output.children.push(child);
 
