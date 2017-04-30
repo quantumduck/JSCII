@@ -1,13 +1,17 @@
 function compress(input) {
-  var output = input;
+  var output;
+  var trimmed = input;
+  var lines = [];
   if (typeof(input) === 'string') {
     // Convert it to an array
   }
   // Delete leading and trailing blank lines:
-  output = stripBlankLines(output);
+  trimmed = stripBlankLines(trimmed);
   // Delete leading and trailing spaces.
-  output = stripSpaces(output);
-  return output;
+  trimmed = stripSpaces(trimmed);
+  // Look for repeated lines:
+  // for (var i = 0; i < trimmed.length; )
+  return trimmed;
 }
 
 function stripBlankLines(array) {
@@ -89,6 +93,8 @@ function stripSpaces(input) {
   } // else { /* there are no leading spaces. */ }
   return output;
 }
+
+// Tests
 
 var testArray = ["            ",
                  "  Hello     ",

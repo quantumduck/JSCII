@@ -1,3 +1,5 @@
+'use strict';
+
 var mode = {
   overwrite: 0,
   insert: 1,
@@ -23,3 +25,31 @@ var drawingArea = {
     return this.lines.length;
   }
 };
+
+class DrawingArea {
+  constructor(width, height, content) {
+    this.children = [];
+    this.lines = [];
+    for (var y = 0; y < height; y++) {
+      this.lines.push("");
+      for (var x = 0; x < width; x++) {
+        if (content && content[y] && content[y][x]) {
+          this.lines[y] += content[y][x];
+        } else {
+          this.lines[y] += " ";
+        }
+      }
+    }
+  }
+  get height() {
+    return this.lines.length;
+  }
+
+  get width() {
+    return this.lines[0].length;
+  }
+}
+
+var da = new DrawingArea(3, 3);
+console.log(da.lines);
+console.log(da.width);
