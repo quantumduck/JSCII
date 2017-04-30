@@ -1,5 +1,7 @@
 'use strict';
 
+var numAreas = 0;
+
 var mode = {
   overwrite: 0,
   insert: 1,
@@ -25,14 +27,64 @@ var drawingArea = {
   }
 };
 
+// I'm going to try a functional apprach:
+function rootAreaInit(width, height) {
+  var content = [];
+  for (var y = 0; y < height; y++) {
+    content.push("");
+    for (var x = 0; x < width; x++) {
+      content[y] += " ";
+    }
+  }
+  return {
+    lines: content,
+    width: content[0].length,
+    height: content.length,
+    offset: {left: 0, top: 0},
+    children: [],
+    indices: [],
+    claimed: false
+  };
+}
+
+function select(point1, point2) {
+  var selection = {
+    x: point1.x,
+    y: point1.y,
+    xmin: point1.x,
+    xmax: point1.x,
+    ymin: point1.y,
+    ymax: point1.y
+  };
+  if (point2) {
+    selection.xmin = Math.min(point1.x, point2.x);
+    selection.xmax = Math.max(point1.x, point2.x);
+    selection.ymin = Math.min(point1.y, point2.y);
+    selection.ymax = Math.max(point1.y, point2.y);
+  }
+  return selection;
+}
+
+function newChild(parent, selection) {
+  var output = parent;
+  var childContent = [];
+  var indices = parent.indices;
+  
+
+  index = output.children.push(child);
+
+}
+
 // This is where the ASCII data is stored:
 // There are two helper functions for getting the width and height.
 class DrawingArea {
 
   constructor(width, height, content) {
+    this.id = ++numAreas;
     this.children = [];
     this.lines = [];
-    this.parent = false;
+    this.parentId = 0;
+    this.index = 0;
     this.offset = {left: 0; top: 0};
     for (var y = 0; y < height; y++) {
       this.lines.push("");
@@ -59,6 +111,9 @@ class DrawingArea {
     child.parent = this;
     child.offset = {left: offsetLeft, top: offsetTop};
     this.children.push(child);
+    if (parentId) {
+
+    }
     return child;
   }
 
@@ -109,6 +164,32 @@ class DrawingArea {
     }
   }
 
+  overWrite(string, x, y) {
+    var written = "";
+    var i = x;
+    var j = y;
+    var numChars = 0;
+    if (i >= this.width) {
+      return "";
+    }
+    if (j >= this.height) {
+      return "";
+    }
+    while (j < this.height) {
+      while (i < this.width) {
+        this.lines[j][i] = string[numChars];
+        written += string[numChars];
+        numChars++;
+        if (written === string) {
+
+        }
+        i++;
+      }
+      i = 0;
+      j++;
+    }
+    return written;
+  }
 
 }
 
