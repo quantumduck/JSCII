@@ -1,3 +1,63 @@
+// Command defs: C: command, x: data, n: hex
+// Lx: line def; Rn: Copy of line; Sx: string def; In: insert string n;
+// Xn: byte n in hex; Un: unicode n in hex; Tn: repeat n times (char or string);
+// Wn: whitespace n times; N: blank line; QC: escape C;
+
+
+var compressedText = {
+  strings: [],
+  lines: []
+};
+
+function findRepeatedStrings(input, len) {
+  var content = input.join('\n');
+  var length = n
+  var strings = [];
+  var repeatedStrings = [];
+  for (var j = 0; j <= (content.length - length); j++) {
+    var string = content.substring(j, j + length);
+    if (string.indexOf('\n') >= 0) {
+      // skip.
+    } else {
+      for (var k = 0; k < strings.length; k++) {
+        if (string === strings[k].value) {
+          strings[k].times++;
+        } else {
+          strings.push({ value: string, times: 1 });
+        }
+      }
+    }
+  }
+  for (var k = 0; k < strings.length; k++) {
+    if (strings[k].times > 1) {
+      repeatedStrings.push(strings[k].value);
+    }
+  }
+  return repatedStrings;
+}
+
+function deleteStrings(input, removeStrings) {
+  var output = input;
+  var strings = removeStrings;
+  var indices = [];
+  var length - strings[0].length;
+  for (var i = 0; i < strings.length; i++) {
+    var limit = output.length - length;
+    for (var j = 0; j <= limit; j++) {
+      if (output.substring(j, j + length) === strings[i]) {
+        indices.push(j);
+      }
+    }
+  }
+  indices.sort();
+  for (var i = 0; i < indices.length; i++) {
+    
+  }
+}
+// Find repeated lines
+
+// Find repeated strings >= 4 chars
+
 function compress(input) {
   var output;
   var trimmed = input;
