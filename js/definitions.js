@@ -44,6 +44,8 @@ function rootAreaInit(width, height) {
     children: [],
     traceBack: [],
     claimed: false,
+    visible: true,
+    opaque: false,
 
     newChild: function(selection) {
       // assume a valid selection.
@@ -70,6 +72,54 @@ function rootAreaInit(width, height) {
       output.children.push(child);
       return output;
     },
+
+    contains: function(point) {
+      return (
+        (point.x >= this.offset.left) &&
+        (point.y >= this.offset.top) &&
+        (point.x < this.offset.left + this.width) &&
+        (point.y < this.offset.top + this.height)
+      );
+    }
+
+    selectAll: function() {
+      return {
+        x: 0,
+        y: 0,
+        xmin: 0,
+        xmax: (this.width - 1),
+        ymin: 0,
+        ymax: (this.height - 1)
+      };
+    }
+
+    move: function(x, y) {
+      return; // unfinished
+      var index = this.children.length;
+      var output = this.addChild(this.selectAll());
+      var child = output.children.pop();
+      child.children = output.children;
+    }
+
+    moveChild: function(grabPoint, x, y) {
+      var child;
+      var output = this;
+      var numChildren = this.children.length;
+      if (numChildren === 0) {
+        return output.move(x, y);
+      }
+      for (var i = numChildren - 1; i >= 0; i--) {
+        child = output.children[i];
+        if (child.contains(grabPoint)) {
+          child.offset.top += y;
+          child.offset.left += x;
+          output.children[i] = child;
+          return output;
+        }
+      }
+      // If no child contains point:
+      return output.move(x, y);
+    }
 
 
 
