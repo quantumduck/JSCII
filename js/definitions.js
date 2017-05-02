@@ -28,6 +28,8 @@ var drawingArea = {
 };
 
 // I'm going to try a functional apprach:
+// Having children of children is unnecessary complication.
+// Only the root area will have children.
 function rootAreaInit(width, height) {
   var content = [];
   for (var y = 0; y < height; y++) {
@@ -42,33 +44,30 @@ function rootAreaInit(width, height) {
     height: content.length,
     offset: {left: 0, top: 0},
     children: [],
-    traceBack: [],
-    claimed: false,
+    root: true,
     visible: true,
     opaque: false,
 
-    newChild: function(selection) {
+    newArea: function(selection) {
       // assume a valid selection.
       var output = this;
       var child = this;
       var childContent = [];
-      var index = output.children.length;
       for (var y = selection.ymin; y <= selection.ymax; y++) {
         childContent.push('');
         var blankLine = '';
         for (var x = selection.xmin; x <= selection.xmax; x++) {
-          childContent[y - selection.ymin][x - selection.xmin] += output.lines[y][x];
-          blankLine += '';
+          childContent[y - selection.ymin] += output.lines[y][x];
+          blankLine += ' ';
         }
         output.lines[y] = blankLine;
       }
-      child.line = childContent;
+      child.lines = childContent;
       child.width = child.lines[0].length;
       child.height = child.lines.length;
       child.offset = {left: selection.xmin, top: selection.ymin};
       child.children = [];
-      child.claimed = true;
-      child.traceBack.push(index);
+      child.root = false;
       output.children.push(child);
       return output;
     },
@@ -80,7 +79,7 @@ function rootAreaInit(width, height) {
         (point.x < this.offset.left + this.width) &&
         (point.y < this.offset.top + this.height)
       );
-    }
+    },
 
     selectAll: function() {
       return {
@@ -91,7 +90,7 @@ function rootAreaInit(width, height) {
         ymin: 0,
         ymax: (this.height - 1)
       };
-    }
+    },
 
     move: function(x, y) {
       return; // unfinished
@@ -99,7 +98,10 @@ function rootAreaInit(width, height) {
       var output = this.addChild(this.selectAll());
       var child = output.children.pop();
       child.children = output.children;
-    }
+      child.offset = {left: x, top: y};
+      output.children = [child];
+      return output;
+    },
 
     moveChild: function(grabPoint, x, y) {
       var child;
@@ -119,9 +121,12 @@ function rootAreaInit(width, height) {
       }
       // If no child contains point:
       return output.move(x, y);
+    },
+
+    getChildIndex(x, y) {
+      var index = [];
+
     }
-
-
 
   };
 }

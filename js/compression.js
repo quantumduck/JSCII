@@ -11,7 +11,7 @@ var compressedText = {
 
 function findRepeatedStrings(input, len) {
   var content = input.join('\n');
-  var length = n
+  var length = len;
   var strings = [];
   var repeatedStrings = [];
   for (var j = 0; j <= (content.length - length); j++) {
@@ -33,27 +33,38 @@ function findRepeatedStrings(input, len) {
       repeatedStrings.push(strings[k].value);
     }
   }
-  return repatedStrings;
+  return repeatedStrings;
 }
 
 function deleteStrings(input, removeStrings) {
-  var output = input;
+  var output = "";
   var strings = removeStrings;
-  var indices = [];
-  var length - strings[0].length;
+  var indices = [0];
+  var length = strings[0].length;
   for (var i = 0; i < strings.length; i++) {
-    var limit = output.length - length;
+    var limit = input.length - length;
     for (var j = 0; j <= limit; j++) {
-      if (output.substring(j, j + length) === strings[i]) {
+      if (input.substring(j, j + length) === strings[i]) {
         indices.push(j);
+        indices.push(j + length);
       }
     }
   }
-  indices.sort();
-  for (var i = 0; i < indices.length; i++) {
-    
+  indices.sort(function(a,b) { return a - b;});
+  for (var i = 1; i < indices.length; i += 2) {
+    output += input.substring(indices[i - 1], indices[i]);
+    output += '\n';
   }
+  output += input.substring(indices[indices.length - 1], input.length);
+  return [output, indices];
 }
+
+function indexRepeats(input) {
+
+}
+
+
+
 // Find repeated lines
 
 // Find repeated strings >= 4 chars
