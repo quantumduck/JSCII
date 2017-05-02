@@ -92,40 +92,88 @@ function rootAreaInit(width, height) {
       };
     },
 
-    move: function(x, y) {
-      return; // unfinished
-      var index = this.children.length;
-      var output = this.addChild(this.selectAll());
-      var child = output.children.pop();
-      child.children = output.children;
-      child.offset = {left: x, top: y};
-      output.children = [child];
-      return output;
+    charAt(x, y) {
+      return this.lines[y - this.offset.top][x - this.offset.left];
     },
 
-    moveChild: function(grabPoint, x, y) {
-      var child;
-      var output = this;
-      var numChildren = this.children.length;
-      if (numChildren === 0) {
-        return output.move(x, y);
+    visible(x, y) {
+      if (this.visible) {
+        if (this.opaque) {
+          return true;
+        }
+        if (charAt(x, y) === ' ') {
+          return false;
+        } else {
+          return true
+        }
+      } else {
+        return false;
       }
-      for (var i = numChildren - 1; i >= 0; i--) {
-        child = output.children[i];
-        if (child.contains(grabPoint)) {
-          child.offset.top += y;
-          child.offset.left += x;
-          output.children[i] = child;
+    },
+
+    move: function(x, y) {
+      var output = this;
+      if (output.root) {
+        output = addArea(this.selectAll);
+        return output.moveChild(output.children.length - 1, x, y);
+      } else {
+        output.offset.left += x;
+        output.offset.top += y;
+        return output;
+      }
+    },
+
+    moveChild: function(childIndex, x, y) {
+      var output = this;
+      if (output.children[childIndex]) {
+        var child = output.children[childIndex];
+        child = child.move(x, y);
+        output.children[childIndex] = child;
+        return output;
+      } else {
+        return output;
+      }
+    },
+
+    raiseChild: function(childIndex, level) {
+      var output = this;
+      if (output.children[childIndex]) {
+        var child = output.children[childIndex];
+        switch (level) {
+          case 'bottom': {
+            for (var i = childIndex; i > 0; i--) {
+              output = output.raiseChild(i, -1);
+            }
+          }
+          case 'top': {
+            for (var i = childIndex; i < output.children.length - 1; i++) {
+              output = output.raiseChild(i, 1);
+            }
+          } case 1: {
+            output.children[childIndex] = output.children[childIndex + 1];
+            output.children[childIndex + 1] = child;
+          } case -1: {
+            output.children[childIndex] = output.children[childIndex - 1];
+            output.children[childIndex - 1] = child;
+          }
           return output;
         }
+      } else {
+        return output;
       }
-      // If no child contains point:
-      return output.move(x, y);
     },
 
     getChildIndex(x, y) {
-      var index = [];
-
+      var index = this.children.length - 1;
+      while (index >= 0) {
+        if (this.children[index].contains(x, y)) {
+          if (this.children[index].visible(x, y)) {
+            return index;
+          }
+        }
+        index --;
+      }
+      return -1;
     }
 
   };
