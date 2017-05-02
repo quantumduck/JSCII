@@ -14,16 +14,16 @@ function findRepeatedStrings(input, len) {
   var length = len;
   var strings = [];
   var repeatedStrings = [];
-  for (var j = 0; j <= (content.length - length); j++) {
-    var string = content.substring(j, j + length);
+  for (var i = 0; i < (content.length - length + 1); i++) {
+    var string = content.substring(i, i + length)
     if (string.indexOf('\n') >= 0) {
       // skip.
     } else {
-      for (var k = 0; k < strings.length; k++) {
-        if (string === strings[k].value) {
-          strings[k].times++;
-        } else {
-          strings.push({ value: string, times: 1 });
+      strings.push({value: string, times: 1});
+      for (var j = 0; j < strings.length - 1; j++) {
+        if (strings[j].value === string) {
+          strings[j].times += 1;
+          break;
         }
       }
     }
