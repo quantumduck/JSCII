@@ -9,8 +9,9 @@ var compressedText = {
   lines: []
 };
 
+
 function findRepeatedStrings(input, len) {
-  var content = input.join('\n');
+  var content = input;
   var length = len;
   var strings = [];
   var repeatedStrings = [];
@@ -56,7 +57,7 @@ function deleteStrings(input, removeStrings) {
     output += '\n';
   }
   output += input.substring(indices[indices.length - 1], input.length);
-  return [output, indices];
+  return output;
 }
 
 function indexRepeats(input) {
@@ -70,9 +71,12 @@ function indexRepeats(input) {
 // Find repeated strings >= 4 chars
 
 function compress(input) {
-  var output;
+  var output = "";
   var trimmed = input;
+  var leftovers = "";
   var lines = [];
+  var maxLength = input[0].length - 2;
+  var strings = [];
   if (typeof(input) === 'string') {
     // Convert it to an array
   }
@@ -82,14 +86,88 @@ function compress(input) {
   trimmed = stripSpaces(trimmed);
   // Look for repeated lines:
   // for (var i = 0; i < trimmed.length; )
-  return trimmed;
+  leftovers = trimmed.join('\n');
+  for (var i = maxLength; i >= 2; i--) {
+    var repeats = findRepeatedStrings(leftovers, i);
+    console.log(repeats);
+    if (repeats.length > 0) {
+      strings.concat(repeats);
+      leftovers = deleteStrings(leftovers, repeats);
+    }
+  }
+
+
+  return [output, trimmed, strings, leftovers];
+}
+
+function buildStringDefs(strings) {
+  var output = "";
+  for (var i = 0; i < strings.length; i++) {
+    var string = strings[i];
+    output += 'S';
+    var repeat = 0;
+    var previous = false;
+    for (var j = 0; j < string.length; j++) {
+      if (repeat) {
+        if (char === previous) {
+          repeat++;
+        } else {
+          output += repeat;
+          repeat = 0;
+        }
+      } else {
+        var next = processChar(char);
+        switch (next) {
+          case 'T':
+            repeat = true;
+            break;
+          case 'W':
+            repeat = true;
+            break;
+          default:
+            output += next;
+        }
+      }
+    }
+  }
+}
+
+
+function processChar(char, previous, repeat) {
+  var output = "";
+  switch (char) {
+    case previous:
+      if (previous != ' ') {
+        output += 'T';
+      }
+      break;
+    case '\n':
+      break;
+    case ' ':
+      output += 'W';
+      repeat = 1;
+      break;
+    case 'I':
+    case 'L':
+    case 'N':
+    case 'Q':
+    case 'R':
+    case 'S':
+    case 'T':
+    case 'U':
+    case 'W':
+    case 'X':
+      output += 'Q';
+    default:
+      output += char;
+  }
+  return [output, previous, repeat];
 }
 
 function stripBlankLines(array) {
   var output = array;
   // Delete leading blank lines
   var line = array[0];
-  console.log(line);
   while (isBlank(line)) {
     if (output.length > 1) {
       output.shift();
