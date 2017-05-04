@@ -114,7 +114,8 @@ function rootAreaInit(width, height) {
       var output = this;
       if (output.root) {
         output = addArea(this.selectAll);
-        return output.moveChild(output.children.length - 1, x, y);
+        output = output.moveChild(output.children.length - 1, x, y);
+        return output.mergeChild(output.children.length);
       } else {
         output.offset.left += x;
         output.offset.top += y;
@@ -135,21 +136,27 @@ function rootAreaInit(width, height) {
     },
 
     resizeTop: function(newHeight) {
-      this.offset.top += (this.height - newHeight);
+      var output = this;
+      if (output.root) {
+        output = addArea(this.selectAll);
+        output = output.moveChild(output.children.length - 1, x, y);
+        return output.mergeChild(output.children.length);
+      } else {
+      output.offset.top += (output.height - newHeight);
       if (this.height > newHeight) {
-        for (var j = 0; j < (this.height - newHeight); i++) {
-          this.lines.shift();
+        for (var j = 0; j < (output.height - newHeight); i++) {
+          output.lines.shift();
         }
       } else {
         var line = '';
-        for (var i = 0; i < this.width; i++) {
+        for (var i = 0; i < output.width; i++) {
           line += ' ';
         }
-        for (var j = 0; j < (newHeight - this.height); j++) {
-          this.lines = [line].concat(this.lines);
+        for (var j = 0; j < (newHeight - output.height); j++) {
+          output.lines = [line].concat(output.lines);
         }
       }
-      this.height = newHeight;
+      output.height = newHeight;
     },
 
     resizeBottom: function(newHeight) {
@@ -195,21 +202,27 @@ function rootAreaInit(width, height) {
       this.width = newWidth;
     },
 
+    // resize: function(newWidth, newHeight) {
+    //   if (this.root) {
+    //
+    //   } else {
+    //
+    //   }
+    // },
 
-
-    raiseChild: function(childIndex, level) {
+    reorderChild: function(childIndex, level) {
       var output = this;
       if (output.children[childIndex]) {
         var child = output.children[childIndex];
         switch (level) {
           case 'bottom': {
             for (var i = childIndex; i > 0; i--) {
-              output = output.raiseChild(i, -1);
+              output = output.reorderChild(i, -1);
             }
           }
           case 'top': {
             for (var i = childIndex; i < output.children.length - 1; i++) {
-              output = output.raiseChild(i, 1);
+              output = output.reorderChild(i, 1);
             }
           } case 1: {
             output.children[childIndex] = output.children[childIndex + 1];
@@ -223,6 +236,33 @@ function rootAreaInit(width, height) {
       } else {
         return output;
       }
+    },
+
+    mergeChild(childIndex) {
+      var output = this;
+      var child = output.children[childIndex]
+      var top = child.offset.top;
+      var left = child.offset.left;
+      if (child) {
+        output.deleteChild(childIndex);
+        for (var j = 0; j < child.height; j++) {
+          for (var i = 0; i < child.width; i++) {
+            if (this.contains(left + i, top + j)) {
+              this.lines[top + j][left + i] = child.lines[j][i];
+            }
+          }
+        }
+      }
+      return output;
+    },
+
+    deleteChild(childIndex) {
+      var output = this;
+      if (output.children[childIndex]) {
+        output = output.reorderChild(childIndex, 'top');
+        output.children.pop();
+      }
+      return output;
     },
 
     getChildIndex(x, y) {
