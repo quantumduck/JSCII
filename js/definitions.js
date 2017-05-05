@@ -238,7 +238,7 @@ function rootAreaInit(width, height) {
       }
     },
 
-    mergeChild(childIndex) {
+    mergeChild: function(childIndex) {
       var output = this;
       var child = output.children[childIndex]
       var top = child.offset.top;
@@ -256,7 +256,7 @@ function rootAreaInit(width, height) {
       return output;
     },
 
-    deleteChild(childIndex) {
+    deleteChild: function(childIndex) {
       var output = this;
       if (output.children[childIndex]) {
         output = output.reorderChild(childIndex, 'top');
@@ -265,7 +265,7 @@ function rootAreaInit(width, height) {
       return output;
     },
 
-    getChildIndex(x, y) {
+    getChildIndex: function(x, y) {
       var index = this.children.length - 1;
       while (index >= 0) {
         if (this.children[index].contains(x, y)) {
@@ -280,34 +280,3 @@ function rootAreaInit(width, height) {
 
   };
 }
-
-function select(point1, point2) {
-  var selection = {
-    x: point1.x,
-    y: point1.y,
-    xmin: point1.x,
-    xmax: point1.x,
-    ymin: point1.y,
-    ymax: point1.y
-  };
-  if (point2) {
-    selection.xmin = Math.min(point1.x, point2.x);
-    selection.xmax = Math.max(point1.x, point2.x);
-    selection.ymin = Math.min(point1.y, point2.y);
-    selection.ymax = Math.max(point1.y, point2.y);
-  }
-  return selection;
-}
-
-function newChild(parent, selection) {
-  var output = parent;
-  var childContent = [];
-  var indices = parent.indices;
-
-
-  index = output.children.push(child);
-
-}
-
-// This is where the ASCII data is stored:
-// There are two helper functions for getting the width and height.
