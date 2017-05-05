@@ -3,6 +3,14 @@
 // Xn: byte n in hex; Un: unicode n in hex; Tn: repeat n times (char or string);
 // Wn: whitespace n times; N: blank line; QC: escape C;
 
+var uri_reserved = "!*'();:@&=+$,/?#[]";
+
+/*
+drawing?content=hello+world
+drawing?S1=hello%S2=world&content=S1+S2
+
+
+*/
 
 var compressedText = {
   strings: [],

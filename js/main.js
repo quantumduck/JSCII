@@ -1,13 +1,14 @@
 $(function() {
   var selecting = false;
   var selectionStart = {x: 0, y: 0};
-  drawingAreaReset(54, 31);
+  var selection = deselect();
+  var drawingArea = rootAreaInit(54, 31);
   $('#drawing-area').on('mousemove', function(e) {
     if (e.buttons === 1) {
       if (!selecting) {
         selecting = true;
         selectionStart = getXY(e.pageX, e.pageY);
-        selection.set(selectionStart.x, selectionStart.y);
+        selection = select(drawingArea, {selectionStart.x, selectionStart.y});
       } else {
         var selectionEnd = getXY(e.pageX, e.pageY);
         selection.set(

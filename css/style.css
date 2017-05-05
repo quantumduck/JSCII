@@ -41,3 +41,11 @@ body {
 .selected {
   background-color: #bbbbff;
 }
+
+.cursor-overwrite {
+  background-color: #ffbbbb;
+}
+
+.cursor {
+  background-color: #bbffbb;
+}
