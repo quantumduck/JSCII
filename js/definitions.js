@@ -26,110 +26,85 @@ function drawingAreaInit(width, height) {
     fill: false,
     objects: [],
 
-    reorderChild: function(childIndex, level) {
-      var output = this;
-      if (output.children[childIndex]) {
-        var child = output.children[childIndex];
-        switch (level) {
-          case 'bottom': {
-            for (var i = childIndex; i > 0; i--) {
-              output = output.reorderChild(i, -1);
-            }
-          }
-          case 'top': {
-            for (var i = childIndex; i < output.children.length - 1; i++) {
-              output = output.reorderChild(i, 1);
-            }
-          } case 1: {
-            output.children[childIndex] = output.children[childIndex + 1];
-            output.children[childIndex + 1] = child;
-          } case -1: {
-            output.children[childIndex] = output.children[childIndex - 1];
-            output.children[childIndex - 1] = child;
-          }
-          return output;
-        }
-      } else {
-        return output;
-      }
-    },
-
-    newArea: function(selection) {
-      // assume a valid selection.
-      var output = this;
-      var child = this;
-      var childContent = [];
-      for (var y = selection.ymin; y <= selection.ymax; y++) {
-        childContent.push('');
-        var blankLine = '';
-        for (var x = selection.xmin; x <= selection.xmax; x++) {
-          childContent[y - selection.ymin] += output.lines[y][x];
-          blankLine += ' ';
-        }
-        output.lines[y] = blankLine;
-      }
-      child.lines = childContent;
-      child.width = child.lines[0].length;
-      child.height = child.lines.length;
-      child.offset = {left: selection.xmin, top: selection.ymin};
-      child.children = [];
-      child.root = false;
-      output.children.push(child);
-      return output;
-    },
-
-    moveChild: function(childIndex, x, y) {
-      var output = this;
-      if (output.children[childIndex]) {
-        var child = output.children[childIndex];
-        child = child.move(x, y);
-        output.children[childIndex] = child;
-        return output;
-      } else {
-        return output;
-      }
-    },
-
-
-    mergeChild: function(childIndex) {
-      var output = this;
-      var child = output.children[childIndex]
-      var top = child.offset.top;
-      var left = child.offset.left;
-      if (child) {
-        output.deleteChild(childIndex);
-        for (var j = 0; j < child.height; j++) {
-          for (var i = 0; i < child.width; i++) {
-            if (this.contains(left + i, top + j)) {
-              this.lines[top + j][left + i] = child.lines[j][i];
-            }
-          }
-        }
-      }
-      return output;
-    },
-
-    deleteChild: function(childIndex) {
-      var output = this;
-      if (output.children[childIndex]) {
-        output = output.reorderChild(childIndex, 'top');
-        output.children.pop();
-      }
-      return output;
-    },
-
-    getChildIndex: function(x, y) {
-      var index = this.children.length - 1;
+    getObjectIndex: function(x, y) {
+      let index = this.objects.length - 1;
       while (index >= 0) {
-        if (this.children[index].contains(x, y)) {
-          if (this.children[index].visible(x, y)) {
+        if (this.objects[index].contains(x, y)) {
+          if (this.objects[index].visible(x, y)) {
             return index;
           }
         }
         index --;
       }
       return -1;
-    }
+    },
+
+    reorderObject: function(objInd, level) {
+      let output = this;
+      if (output.objects[objInd]) {
+        let drawObject = output.objects[objInd];
+        switch (level) {
+          case 'bottom': {
+            for (let i = objInd; i > 0; i--) {
+              output = output.reorderObject(i, -1);
+            }
+          }
+          case 'top': {
+            for (let i = objInd; i < output.objects.length - 1; i++) {
+              output = output.reorderObject(i, 1);
+            }
+          } case 1: {
+            output.objects[objInd] = output.objects[objInd + 1];
+            output.objects[objInd + 1] = drawObject;
+          } case -1: {
+            output.objects[objInd] = output.objects[objInd - 1];
+            output.objects[objInd - 1] = drawObject;
+          }
+
+        }
+      return output;
+    },
+
+    moveObject: function(objInd, x, y) {
+      let output = this;
+      if (output.objects[objInd]) {
+        let obj = output.objects[objInd];
+        obj = obj.move(x, y);
+        output.objects[objInd] = obj;
+        return output;
+      } else {
+        return output;
+      }
+    },
+
+    mergeChild: function(objInd) {
+      var output = this;
+      var obj = output.objects[objInd]
+      var top = obj.offset.top;
+      var left = obj.offset.left;
+      if (obj) {
+        output.deleteChild(objInd);
+        for (var j = 0; j < obj.height; j++) {
+          for (var i = 0; i < obj.width; i++) {
+            if (this.contains(left + i, top + j)) {
+              this.lines[top + j][left + i] = obj.lines[j][i];
+            }
+          }
+        }
+      }
+      return output;
+    },
+
+    deleteChild: function(objInd) {
+      var output = this;
+      if (output.objects[objInd]) {
+        output = output.reorderChild(objInd, 'top');
+        output.objects.pop();
+      }
+      return output;
+    },
+
+
 
 
 
@@ -139,17 +114,17 @@ function drawingAreaInit(width, height) {
 
 
 
-mergeChild: function(childIndex) {
+mergeChild: function(objInd) {
   var output = this;
-  var child = output.children[childIndex]
-  var top = child.offset.top;
-  var left = child.offset.left;
-  if (child) {
-    output.deleteChild(childIndex);
-    for (var j = 0; j < child.height; j++) {
-      for (var i = 0; i < child.width; i++) {
+  var obj = output.objects[objInd]
+  var top = obj.offset.top;
+  var left = obj.offset.left;
+  if (obj) {
+    output.deleteChild(objInd);
+    for (var j = 0; j < obj.height; j++) {
+      for (var i = 0; i < obj.width; i++) {
         if (this.contains(left + i, top + j)) {
-          this.lines[top + j][left + i] = child.lines[j][i];
+          this.lines[top + j][left + i] = obj.lines[j][i];
         }
       }
     }
@@ -157,20 +132,20 @@ mergeChild: function(childIndex) {
   return output;
 },
 
-deleteChild: function(childIndex) {
+deleteChild: function(objInd) {
   var output = this;
-  if (output.children[childIndex]) {
-    output = output.reorderChild(childIndex, 'top');
-    output.children.pop();
+  if (output.objects[objInd]) {
+    output = output.reorderChild(objInd, 'top');
+    output.objects.pop();
   }
   return output;
 },
 
-getChildIndex: function(x, y) {
-  var index = this.children.length - 1;
+getobjInd: function(x, y) {
+  var index = this.objects.length - 1;
   while (index >= 0) {
-    if (this.children[index].contains(x, y)) {
-      if (this.children[index].visible(x, y)) {
+    if (this.objects[index].contains(x, y)) {
+      if (this.objects[index].visible(x, y)) {
         return index;
       }
     }
@@ -186,33 +161,33 @@ getChildIndex: function(x, y) {
 newArea: function(selection) {
   // assume a valid selection.
   var output = this;
-  var child = this;
-  var childContent = [];
+  var obj = this;
+  var objContent = [];
   for (var y = selection.ymin; y <= selection.ymax; y++) {
-    childContent.push('');
+    objContent.push('');
     var blankLine = '';
     for (var x = selection.xmin; x <= selection.xmax; x++) {
-      childContent[y - selection.ymin] += output.lines[y][x];
+      objContent[y - selection.ymin] += output.lines[y][x];
       blankLine += ' ';
     }
     output.lines[y] = blankLine;
   }
-  child.lines = childContent;
-  child.width = child.lines[0].length;
-  child.height = child.lines.length;
-  child.offset = {left: selection.xmin, top: selection.ymin};
-  child.children = [];
-  child.root = false;
-  output.children.push(child);
+  obj.lines = objContent;
+  obj.width = obj.lines[0].length;
+  obj.height = obj.lines.length;
+  obj.offset = {left: selection.xmin, top: selection.ymin};
+  obj.objects = [];
+  obj.root = false;
+  output.objects.push(obj);
   return output;
 },
 
-moveChild: function(childIndex, x, y) {
+moveChild: function(objInd, x, y) {
   var output = this;
-  if (output.children[childIndex]) {
-    var child = output.children[childIndex];
-    child = child.move(x, y);
-    output.children[childIndex] = child;
+  if (output.objects[objInd]) {
+    var obj = output.objects[objInd];
+    obj = obj.move(x, y);
+    output.objects[objInd] = obj;
     return output;
   } else {
     return output;
@@ -222,26 +197,26 @@ moveChild: function(childIndex, x, y) {
 
 
 
-reorderChild: function(childIndex, level) {
+reorderChild: function(objInd, level) {
   var output = this;
-  if (output.children[childIndex]) {
-    var child = output.children[childIndex];
+  if (output.objects[objInd]) {
+    var obj = output.objects[objInd];
     switch (level) {
       case 'bottom': {
-        for (var i = childIndex; i > 0; i--) {
+        for (var i = objInd; i > 0; i--) {
           output = output.reorderChild(i, -1);
         }
       }
       case 'top': {
-        for (var i = childIndex; i < output.children.length - 1; i++) {
+        for (var i = objInd; i < output.objects.length - 1; i++) {
           output = output.reorderChild(i, 1);
         }
       } case 1: {
-        output.children[childIndex] = output.children[childIndex + 1];
-        output.children[childIndex + 1] = child;
+        output.objects[objInd] = output.objects[objInd + 1];
+        output.objects[objInd + 1] = obj;
       } case -1: {
-        output.children[childIndex] = output.children[childIndex - 1];
-        output.children[childIndex - 1] = child;
+        output.objects[objInd] = output.objects[objInd - 1];
+        output.objects[objInd - 1] = obj;
       }
       return output;
     }
