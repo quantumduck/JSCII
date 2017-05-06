@@ -49,8 +49,7 @@ function areaInit(selection) {
     height: content.length,
     offset: {left: selection.xmin , top: selection.ymin},
     visible: true,
-    opaque: false,
-    border: {left: 0, top: 0, bottom: 0, right: 0}
+    opaque: false
   };
 
   area.selectAll = function() {
@@ -110,184 +109,56 @@ function areaInit(selection) {
     return points;
   };
 
-  area.resizeRight = function(newWidth) {
-    for (var j = 0; j < this.height; j++) {
-      if (this.width > newWidth) {
-        this.lines[j] = this.lines[j].substring(0, newWidth);
+  area.move = function(x, y) {
+    let output = this;
+    output.offset.left += x;
+    output.offset.top += y;
+    return output;
+  };
+
+  area.resize = function(selection) {
+    let output = this;
+    let template = areaInit(selection);
+    for (let y = selection.ymin; y <= selection.ymax; y++) {
+      for (let x = selection.xmin; x <= selection.xmax; x++) {
+        template.lines[y - selection.ymin] = '';
+        if (this.contains(x, y)) {
+          template.lines[y - selection.ymin] += this.charAt(x, y);
+        } else {
+          template.lines[y - selection.ymin] += ' ';
+        }
+      }
+    }
+    output.lines = template.lines;
+    output.width = template.width;
+    output.height = template.height;
+    output.offset = template.offset;
+    return output;
+  };
+
+  return area;
+}
+
+function mergeAreas(area1, area2) {
+  let selection = area1.selectAll();
+  let addIn = area2.selectAll();
+  selection.xmin = Math.min(selection.xmin, addIn.xmin);
+  selection.ymin = Math.min(selection.ymin, addIn.ymin);
+  selection.xmax = Math.max(selection.xmax, addIn.xmax);
+  selection.ymax = Math.max(selection.ymax, addIn.ymax);
+  let mergedAreas = areaInit(selection);
+  for (let y = selection.ymin; y <= selection.ymax; y++) {
+    for (let x = selection.xmin; x <= selection.xmax; x++) {
+      mergedAreas.lines[y - selection.ymin] = '';
+      if (this.visibleAt(x, y)) {
+        mergedAreas.lines[y - selection.ymin] += area1.charAt(x, y);
+      } else if (otherArea.visibleAt(x, y)) {
+        mergedAreas.lines[y - selection.ymin] += area2.charAt(x, y);
       } else {
-        for (var i = 0; i < (newWdith - this.width); i++) {
-          this.lines[j] += ' ';
-        }
+        mergedAreas.lines[y - selection.ymin] += ' ';
       }
     }
-    this.width = newWidth;
-  };
-
-  area.resizeBottom = function(newHeight) {
-    if (this.height > newHeight) {
-      for (var j = 0; j < (this.height - newHeight); i++) {
-        this.lines.pop();
-      }
-    } else {
-      var line = '';
-      for (var i = 0; i < this.width; i++) {
-        line += ' ';
-      }
-      for (var j = 0; j < (newHeight - this.height); j++) {
-        this.lines.push(line);
-      }
-    }
-    this.height = newHeight;
-  };
-
-  area.offsetContent = function(left, top) {
-
-  };
-
-  area.mergeWith = function(otherArea, overwrite) {
-    let selection = this.selectAll();
-    let addIn = otherArea.selectAll();
-    selection.xmin = Math.min(selection.xmin, addIn.xmin);
-    selection.ymin = Math.min(selection.ymin, addIn.ymin);
-    selection.xmax = Math.max(selection.xmax, addIn.xmax);
-    selection.ymax = Math.max(selection.ymax, addIn.ymax);
-    if (overwrite) {
-      let mergedAreas = areaInit(selection);
-      for (let y = selection.ymin; y <= selection.ymax; y++) {
-        for (let x = selection.xmin; x <= selection.xmax; x++) {
-          mergedAreas.lines[y - selection.ymin] = '';
-          if (this.visibleAt(x, y)) {
-            mergedAreas.lines[y - selection.ymin] += this.charAt(x, y);
-          } else if (otherArea.visibleAt(x, y)) {
-            mergedAreas.lines[y - selection.ymin] += otherArea.charAt(x, y);
-          } else {
-            mergedAreas.lines[y - selection.ymin] += ' ';
-          }
-        }
-      }
-    } else {
-      let mergedAreas = areaInit(selection);
-      for (let y = selection.ymin; y <= selection.ymax; y++) {
-        for (let x = selection.xmin; x <= selection.xmax; x++) {
-          mergedAreas.lines[y - selection.ymin] = '';
-          if (otherArea.visibleAt(x, y)) {
-            mergedAreas.lines[y - selection.ymin] += otherArea.charAt(x, y);
-          } else if (this.visibleAt(x, y)) {
-            mergedAreas.lines[y - selection.ymin] += this.charAt(x, y);
-          } else {
-            mergedAreas.lines[y - selection.ymin] += ' ';
-          }
-        }
-      }
-    }
-    mergedAreas.type = 'basic';
-    return mergedAreas;
   }
-
-  return area;
-}
-
-function rootAreaInit(width, height) {
-  let selection = {
-    x: 0,
-    y: 0,
-    xmin: 0,
-    ymin: 0,
-    xmax: width - 1;
-    ymax: height - 1;
-  };
-  let area = areaInit(selection);
-  area.type = 'background';
-  area.opaque = true;
-  area.objects = [];
-
-  area.getObjectIndex = function(x, y) {
-    let index = this.objects.length - 1;
-    while (index >= 0) {
-      if (this.objects[index].contains(x, y)) {
-        if (this.objects[index].visible(x, y)) {
-          return index;
-        }
-      }
-      index --;
-    }
-    return -1;
-  };
-
-  area.reorderObject = function(objInd, level) {
-    let output = this;
-    if (output.objects[objInd]) {
-      let drawObject = output.objects[objInd];
-      switch (level) {
-        case 'bottom': {
-          for (let i = objInd; i > 0; i--) {
-            output = output.reorderObject(i, -1);
-          }
-        }
-        case 'top': {
-          for (let i = objInd; i < output.objects.length - 1; i++) {
-            output = output.reorderObject(i, 1);
-          }
-        } case 1: {
-          output.objects[objInd] = output.objects[objInd + 1];
-          output.objects[objInd + 1] = drawObject;
-        } case -1: {
-          output.objects[objInd] = output.objects[objInd - 1];
-          output.objects[objInd - 1] = drawObject;
-        }
-      }
-    return output;
-  };
-
-  area.copyOject = function(objInd) {
-    let output = this;
-    if (output.objects[objInd]) {
-      let obj = output.objects[objInd];
-      output.objects.push(obj);
-    }
-    return output;
-  };
-
-  area.moveObject = function(objInd, x, y) {
-    let output = this;
-    if (output.objects[objInd]) {
-      let obj = output.objects[objInd];
-      obj = obj.move(x, y);
-      output.objects[objInd] = obj;
-    }
-    return output;
-  };
-
-  area.mergeObject = function(objInd) {
-    let output = this;
-    let obj = output.objects[objInd]
-    if (obj) {
-      let top = obj.offset.top;
-      let left = obj.offset.left;
-      output.deleteObject(objInd);
-      for (let j = 0; j < obj.height; j++) {
-        for (let i = 0; i < obj.width; i++) {
-          if (this.contains(left + i, top + j)) {
-            this.lines[top + j][left + i] = obj.lines[j][i];
-          }
-        }
-      }
-    }
-    return output;
-  };
-
-  area.deleteObject = function(objInd) {
-    var output = this;
-    if (output.objects[objInd]) {
-      output = output.reorderObject(objInd, 'top');
-      output.objects.pop();
-    }
-    return output;
-  };
-
-  area.select = function(point1, point2) {
-    return select(this, point1, point2);
-  }
-
-  return area;
-}
+  mergedAreas.type = 'basic';
+  return mergedAreas;
+};

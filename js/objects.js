@@ -1,3 +1,119 @@
+function rootAreaInit(width, height) {
+  let selection = {
+    x: 0,
+    y: 0,
+    xmin: 0,
+    ymin: 0,
+    xmax: width - 1;
+    ymax: height - 1;
+  };
+  let bg = areaInit(selection);
+  bg.type = 'background';
+  bg.opaque = true;
+  bg.objects = [];
+
+  bg.getObjectIndex = function(x, y) {
+    let index = this.objects.length - 1;
+    while (index >= 0) {
+      if (this.objects[index].contains(x, y)) {
+        if (this.objects[index].visibleAt(x, y)) {
+          return index;
+        }
+      }
+      index --;
+    }
+    return -1;
+  };
+
+  bg.reorderObject = function(objInd, level) {
+    let output = this;
+    if (output.objects[objInd]) {
+      let drawObject = output.objects[objInd];
+      switch (level) {
+        case 'bottom': {
+          for (let i = objInd; i > 0; i--) {
+            output = output.reorderObject(i, -1);
+          }
+          break;
+        }
+        case 'top': {
+          for (let i = objInd; i < output.objects.length - 1; i++) {
+            output = output.reorderObject(i, 1);
+          }
+          break;
+        } case 1: {
+          output.objects[objInd] = output.objects[objInd + 1];
+          output.objects[objInd + 1] = drawObject;
+          break;
+        } case -1: {
+          output.objects[objInd] = output.objects[objInd - 1];
+          output.objects[objInd - 1] = drawObject;
+          break;
+        }
+      }
+    return output;
+  };
+
+  bg.copyOject = function(objInd) {
+    let output = this;
+    if (output.objects[objInd]) {
+      let obj = output.objects[objInd];
+      output.objects.push(obj);
+    }
+    return output;
+  };
+
+  bg.moveObject = function(objInd, x, y) {
+    let output = this;
+    if (output.objects[objInd]) {
+      let obj = output.objects[objInd];
+      obj = obj.move(x, y);
+      output.objects[objInd] = obj;
+    }
+    return output;
+  };
+
+  bg.mergeObject = function(objInd) {
+    let output = this;
+    let obj = output.objects[objInd]
+    if (obj) {
+      let top = obj.offset.top;
+      let left = obj.offset.left;
+      output.deleteObject(objInd);
+      for (let j = 0; j < obj.height; j++) {
+        for (let i = 0; i < obj.width; i++) {
+          if (this.contains(left + i, top + j)) {
+            this.lines[top + j][left + i] = obj.lines[j][i];
+          }
+        }
+      }
+    }
+    return output;
+  };
+
+  bg.deleteObject = function(objInd) {
+    var output = this;
+    if (output.objects[objInd]) {
+      output = output.reorderObject(objInd, 'top');
+      output.objects.pop();
+    }
+    return output;
+  };
+
+  bg.select = function(point1, point2) {
+    return select(this, point1, point2);
+  };
+
+  bg.move = function(x, y) {
+    return this;
+  };
+
+  return bg;
+}
+
+
+
+
 
 function defaultBorder(left, top, bottom, right) {
 
@@ -13,12 +129,7 @@ function rectangleInit(selection) {
   rect.type = 'rectangle';
   rect.offset = {left: selection.xmin, top: selection.ymin},
 
-    move: function(x, y) {
-      let output = this;
-      output.offset.left += x;
-      output.offset.top += y;
-      return output;
-    },
+
 
     resize: function(newWidth, newHeight) {
       let output = this;
