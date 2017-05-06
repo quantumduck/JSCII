@@ -75,21 +75,26 @@ function areaInit(selection) {
   };
 
   area.charAt = function(x, y) {
-    return this.lines[y - this.offset.top][x - this.offset.left];
+    if this.contains(x, y) {
+      return this.lines[y - this.offset.top][x - this.offset.left];
+    } else {
+      return '';
+    }
   };
 
-  area.visible = function(x, y) {
-    if (this.visible) {
-      if (this.opaque) {
-        return true;
-      } else if (charAt(x, y) === ' ') {
-        return false;
-      } else {
-        return true
+  area.visibleAt = function(x, y) {
+    if (this.contains(x, y)) {
+      if (this.visible) {
+        if (this.opaque) {
+          return true;
+        } else if (charAt(x, y) === ' ') {
+          return false;
+        } else {
+          return true;
+        }
       }
-    } else {
-      return false;
     }
+    return false;
   };
 
   area.visiblePoints = function() {
@@ -97,7 +102,7 @@ function areaInit(selection) {
     let area = this.selectAll();
     for (let y = area.ymin; y <= area.ymax; y++) {
       for (let x = area.xmin; x <= area.xmax; x++) {
-        if (this.visible(x, y)) {
+        if (this.visibleAt(x, y)) {
           points.push({x: x, y: y});
         }
       }
@@ -150,11 +155,33 @@ function areaInit(selection) {
       let mergedAreas = areaInit(selection);
       for (let y = selection.ymin; y <= selection.ymax; y++) {
         for (let x = selection.xmin; x <= selection.xmax; x++) {
-          
+          mergedAreas.lines[y - selection.ymin] = '';
+          if (this.visibleAt(x, y)) {
+            mergedAreas.lines[y - selection.ymin] += this.charAt(x, y);
+          } else if (otherArea.visibleAt(x, y)) {
+            mergedAreas.lines[y - selection.ymin] += otherArea.charAt(x, y);
+          } else {
+            mergedAreas.lines[y - selection.ymin] += ' ';
+          }
         }
       }
-
+    } else {
+      let mergedAreas = areaInit(selection);
+      for (let y = selection.ymin; y <= selection.ymax; y++) {
+        for (let x = selection.xmin; x <= selection.xmax; x++) {
+          mergedAreas.lines[y - selection.ymin] = '';
+          if (otherArea.visibleAt(x, y)) {
+            mergedAreas.lines[y - selection.ymin] += otherArea.charAt(x, y);
+          } else if (this.visibleAt(x, y)) {
+            mergedAreas.lines[y - selection.ymin] += this.charAt(x, y);
+          } else {
+            mergedAreas.lines[y - selection.ymin] += ' ';
+          }
+        }
+      }
     }
+    mergedAreas.type = 'basic';
+    return mergedAreas;
   }
 
   return area;
