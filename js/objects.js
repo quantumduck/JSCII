@@ -20,12 +20,23 @@ function defaultBorder(left, top, bottom, right) {
 
 }
 
-function contentInit(width, height, pattern) {
+function contentFill(width, height, pattern) {
   let content = [];
-  for (let y = 0; y < height; y++) {
-    content.push('');
-    for (let x = 0; x < width; x++) {
-      content[y] += ' ';
+  if (pattern) {
+    let xlen = pattern[0].length;
+    let ylen = pattern.length;
+    for (let y = 0; y < height; y++) {
+      content.push('');
+      for (let x = 0; x < width; x++) {
+        content[y] += pattern[y % ylen][x % xlen];
+      }
+    }
+  } else {
+    for (let y = 0; y < height; y++) {
+      content.push('');
+      for (let x = 0; x < width; x++) {
+        content[y] += ' ';
+      }
     }
   }
   return content;
@@ -37,7 +48,7 @@ function contentInit(width, height, pattern) {
 function rectangleInit(selection) {
   let width = (selection.xmax - selection.xmin + 1);
   let height = (selection.ymax - selection.ymin + 1);
-  let content = contentInit(width, height);
+  let content = contentFill(width, height);
   return {
     type: "rectangle"
     lines: content,
@@ -46,16 +57,23 @@ function rectangleInit(selection) {
     offset: {left: selection.xmin, top: selection.ymin},
     visible: true,
     opaque: false,
-    border: false,
+    border: {left: false, top: false, bottom: false, right: false},
     fill: false,
 
+    selectAll: function() {
+      return {
+        x: this.offset.left,
+        y: this.offset.top,
+        xmin: this.offset.left,
+        ymin: this.offset.top,
+        xmax: this.offset.left + this.width - 1,
+        ymax: this.offset.top + this.height - 1
+      };
+    },
+
     contains: function(x, y) {
-      return (
-        (x >= this.offset.left) &&
-        (y >= this.offset.top) &&
-        (x < this.offset.left + this.width) &&
-        (y < this.offset.top + this.height)
-      );
+      let area = this.selectAll();
+      
     },
 
     selectAll: function() {
@@ -69,11 +87,12 @@ function rectangleInit(selection) {
       };
     },
 
-    charAt(x, y) {
+    charAt: function(x, y) {
       return this.lines[y - this.offset.top][x - this.offset.left];
     },
 
-    visible(x, y) {
+
+    visible: function(x, y) {
       if (this.visible) {
         if (this.opaque) {
           return true;
@@ -85,6 +104,19 @@ function rectangleInit(selection) {
       } else {
         return false;
       }
+    },
+
+    visiblePoints: function() {
+      let points = [];
+      let area = this.selectAll();
+      for (let y = area.ymin; y <= area.ymax; y++) {
+        for (let x = area.xmin; x <= area.xmax; x++) {
+          if (this.visible(x, y)) {
+            points.push({x: x, y: y});
+          }
+        }
+      }
+      return points;
     },
 
     move: function(x, y) {
@@ -223,4 +255,47 @@ writeChar(char, x, y) {
     line.substring(i + 1, line.length
   );
   return output;
+}
+
+borderCharAt: function(x, y) {
+  let area = this.selectAll();
+  let region = borderRegion(x, y);
+  let border = this.border[region];
+  let numReps = border.length;
+  switch (region) {
+    case 'topleft':
+      return border[area.ymin - y - 1][area.xmin - x - 1];
+    case 'bottomleft':
+      return border[y - area.ymax - 1][area.xmin - x - 1];
+    case 'left':
+      return border[(y - ymin) % numReps][area.xmin - x - 1];
+    case 'right':
+      return border[(y - ymin) % numReps][area.xmax - x - 1];
+    case 'topright':
+      return border[area.ymin - y - 1][area.xmax - x - 1];
+    case 'bottomright':
+      return border[y - area.ymax - 1][area.xmax - x - 1];
+    case 'top':
+      return border[(x - xmin) % numReps][area.ymin - y - 1];
+    case 'bottom':
+      return border[(x - xmin) % numReps][y - area.ymax - 1];
+    default:
+      return false;
+  }
+},
+
+borderRegion: function(x, y) {
+  let area = this.selectAll();
+  let region = '';
+  if (y < area.ymin) {
+    region += 'top';
+  } else if (y > area.ymax) {
+    region += 'bottom';
+  }
+  if (x < area.xmin) {
+    region += 'left';
+  } else if (x > area.xmax) {
+    region += 'right';
+  }
+  return region;
 }
