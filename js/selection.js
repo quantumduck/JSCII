@@ -97,6 +97,8 @@ function select(rootarea, point1, point2) {
       }
     },
 
+    
+
     getTags: function(area, x, y) {
       if (this.size === 0) {
         return ['',''];

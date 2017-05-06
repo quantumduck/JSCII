@@ -16,199 +16,15 @@ var mode = {
 
 var currentMode = mode.overwrite;
 
-// DEPRECIATED SYNTAX! To be repaced by a class.
-var drawingArea = {
-  lines: [""],
-  width: function() {
-    return this.lines[0].length;
-  },
-  height: function() {
-    return this.lines.length;
-  }
-};
-
-// I'm going to try a functional apprach:
-// Having children of children is unnecessary complication.
-// Only the root area will have children.
-function rootAreaInit(width, height) {
-  var content = [];
-  for (var y = 0; y < height; y++) {
-    content.push("");
-    for (var x = 0; x < width; x++) {
-      content[y] += " ";
-    }
-  }
+function drawingAreaInit(width, height) {
+  let content = contentInit(width, height);
   return {
-    lines: content,
+    type: background,
     width: content[0].length,
     height: content.length,
-    offset: {left: 0, top: 0},
-    children: [],
-    root: true,
-    visible: true,
-    opaque: false,
-
-    newArea: function(selection) {
-      // assume a valid selection.
-      var output = this;
-      var child = this;
-      var childContent = [];
-      for (var y = selection.ymin; y <= selection.ymax; y++) {
-        childContent.push('');
-        var blankLine = '';
-        for (var x = selection.xmin; x <= selection.xmax; x++) {
-          childContent[y - selection.ymin] += output.lines[y][x];
-          blankLine += ' ';
-        }
-        output.lines[y] = blankLine;
-      }
-      child.lines = childContent;
-      child.width = child.lines[0].length;
-      child.height = child.lines.length;
-      child.offset = {left: selection.xmin, top: selection.ymin};
-      child.children = [];
-      child.root = false;
-      output.children.push(child);
-      return output;
-    },
-
-    contains: function(x, y) {
-      return (
-        (x >= this.offset.left) &&
-        (y >= this.offset.top) &&
-        (x < this.offset.left + this.width) &&
-        (y < this.offset.top + this.height)
-      );
-    },
-
-    selectAll: function() {
-      return {
-        x: 0,
-        y: 0,
-        xmin: 0,
-        xmax: (this.width - 1),
-        ymin: 0,
-        ymax: (this.height - 1)
-      };
-    },
-
-    charAt(x, y) {
-      return this.lines[y - this.offset.top][x - this.offset.left];
-    },
-
-    visible(x, y) {
-      if (this.visible) {
-        if (this.opaque) {
-          return true;
-        } else if (charAt(x, y) === ' ') {
-          return false;
-        } else {
-          return true
-        }
-      } else {
-        return false;
-      }
-    },
-
-    move: function(x, y) {
-      var output = this;
-      if (output.root) {
-        output = addArea(this.selectAll);
-        output = output.moveChild(output.children.length - 1, x, y);
-        return output.mergeChild(output.children.length);
-      } else {
-        output.offset.left += x;
-        output.offset.top += y;
-        return output;
-      }
-    },
-
-    moveChild: function(childIndex, x, y) {
-      var output = this;
-      if (output.children[childIndex]) {
-        var child = output.children[childIndex];
-        child = child.move(x, y);
-        output.children[childIndex] = child;
-        return output;
-      } else {
-        return output;
-      }
-    },
-
-    resizeTop: function(newHeight) {
-      var output = this;
-      if (output.root) {
-        output = addArea(this.selectAll);
-        output = output.moveChild(output.children.length - 1, x, y);
-        return output.mergeChild(output.children.length);
-      } else {
-      output.offset.top += (output.height - newHeight);
-      if (this.height > newHeight) {
-        for (var j = 0; j < (output.height - newHeight); i++) {
-          output.lines.shift();
-        }
-      } else {
-        var line = '';
-        for (var i = 0; i < output.width; i++) {
-          line += ' ';
-        }
-        for (var j = 0; j < (newHeight - output.height); j++) {
-          output.lines = [line].concat(output.lines);
-        }
-      }
-      output.height = newHeight;
-    },
-
-    resizeBottom: function(newHeight) {
-      if (this.height > newHeight) {
-        for (var j = 0; j < (this.height - newHeight); i++) {
-          this.lines.pop();
-        }
-      } else {
-        var line = '';
-        for (var i = 0; i < this.width; i++) {
-          line += ' ';
-        }
-        for (var j = 0; j < (newHeight - this.height); j++) {
-          this.lines.push(line);
-        }
-      }
-      this.height = newHeight;
-    },
-
-    resizeLeft: function(newWidth) {
-      for (var j = 0; j < this.height; j++) {
-        if (this.width > newWidth) {
-          this.lines[j] = this.lines[j].substring((this.width - newWidth), this.width);
-        } else {
-          for (var i = 0; i < (newWdith - this.width); i++) {
-            this.lines[j] = ' ' + this.lines[j];
-          }
-        }
-      }
-      this.width = newWidth;
-    },
-
-    resizeRight: function(newWidth) {
-      for (var j = 0; j < this.height; j++) {
-        if (this.width > newWidth) {
-          this.lines[j] = this.lines[j].substring(0, newWidth);
-        } else {
-          for (var i = 0; i < (newWdith - this.width); i++) {
-            this.lines[j] += ' ';
-          }
-        }
-      }
-      this.width = newWidth;
-    },
-
-    // resize: function(newWidth, newHeight) {
-    //   if (this.root) {
-    //
-    //   } else {
-    //
-    //   }
-    // },
+    border: false,
+    fill: false,
+    objects: [],
 
     reorderChild: function(childIndex, level) {
       var output = this;
@@ -237,6 +53,43 @@ function rootAreaInit(width, height) {
         return output;
       }
     },
+
+    newArea: function(selection) {
+      // assume a valid selection.
+      var output = this;
+      var child = this;
+      var childContent = [];
+      for (var y = selection.ymin; y <= selection.ymax; y++) {
+        childContent.push('');
+        var blankLine = '';
+        for (var x = selection.xmin; x <= selection.xmax; x++) {
+          childContent[y - selection.ymin] += output.lines[y][x];
+          blankLine += ' ';
+        }
+        output.lines[y] = blankLine;
+      }
+      child.lines = childContent;
+      child.width = child.lines[0].length;
+      child.height = child.lines.length;
+      child.offset = {left: selection.xmin, top: selection.ymin};
+      child.children = [];
+      child.root = false;
+      output.children.push(child);
+      return output;
+    },
+
+    moveChild: function(childIndex, x, y) {
+      var output = this;
+      if (output.children[childIndex]) {
+        var child = output.children[childIndex];
+        child = child.move(x, y);
+        output.children[childIndex] = child;
+        return output;
+      } else {
+        return output;
+      }
+    },
+
 
     mergeChild: function(childIndex) {
       var output = this;
@@ -278,5 +131,157 @@ function rootAreaInit(width, height) {
       return -1;
     }
 
+
+
   };
+}
+
+
+
+
+mergeChild: function(childIndex) {
+  var output = this;
+  var child = output.children[childIndex]
+  var top = child.offset.top;
+  var left = child.offset.left;
+  if (child) {
+    output.deleteChild(childIndex);
+    for (var j = 0; j < child.height; j++) {
+      for (var i = 0; i < child.width; i++) {
+        if (this.contains(left + i, top + j)) {
+          this.lines[top + j][left + i] = child.lines[j][i];
+        }
+      }
+    }
+  }
+  return output;
+},
+
+deleteChild: function(childIndex) {
+  var output = this;
+  if (output.children[childIndex]) {
+    output = output.reorderChild(childIndex, 'top');
+    output.children.pop();
+  }
+  return output;
+},
+
+getChildIndex: function(x, y) {
+  var index = this.children.length - 1;
+  while (index >= 0) {
+    if (this.children[index].contains(x, y)) {
+      if (this.children[index].visible(x, y)) {
+        return index;
+      }
+    }
+    index --;
+  }
+  return -1;
+}
+
+
+
+
+
+newArea: function(selection) {
+  // assume a valid selection.
+  var output = this;
+  var child = this;
+  var childContent = [];
+  for (var y = selection.ymin; y <= selection.ymax; y++) {
+    childContent.push('');
+    var blankLine = '';
+    for (var x = selection.xmin; x <= selection.xmax; x++) {
+      childContent[y - selection.ymin] += output.lines[y][x];
+      blankLine += ' ';
+    }
+    output.lines[y] = blankLine;
+  }
+  child.lines = childContent;
+  child.width = child.lines[0].length;
+  child.height = child.lines.length;
+  child.offset = {left: selection.xmin, top: selection.ymin};
+  child.children = [];
+  child.root = false;
+  output.children.push(child);
+  return output;
+},
+
+moveChild: function(childIndex, x, y) {
+  var output = this;
+  if (output.children[childIndex]) {
+    var child = output.children[childIndex];
+    child = child.move(x, y);
+    output.children[childIndex] = child;
+    return output;
+  } else {
+    return output;
+  }
+},
+
+
+
+
+reorderChild: function(childIndex, level) {
+  var output = this;
+  if (output.children[childIndex]) {
+    var child = output.children[childIndex];
+    switch (level) {
+      case 'bottom': {
+        for (var i = childIndex; i > 0; i--) {
+          output = output.reorderChild(i, -1);
+        }
+      }
+      case 'top': {
+        for (var i = childIndex; i < output.children.length - 1; i++) {
+          output = output.reorderChild(i, 1);
+        }
+      } case 1: {
+        output.children[childIndex] = output.children[childIndex + 1];
+        output.children[childIndex + 1] = child;
+      } case -1: {
+        output.children[childIndex] = output.children[childIndex - 1];
+        output.children[childIndex - 1] = child;
+      }
+      return output;
+    }
+  } else {
+    return output;
+  }
+},
+
+toTextBox: function() {
+  let textBox = textBoxInit(this);
+  for (let y = this.ymin; y <= this.ymax; y++) {
+    for (let x = this.xmin; x <= this.xmax; x++) {
+      textBox.lines[y][x] =
+    }
+  }
+}
+
+
+writeChar(char, x, y) {
+  let output = this;
+  let j = y - output.offset.top;
+  let i = x - output.offset.left;
+  let line = output.lines[j];
+  output.lines[j] = (
+    line.substring(0, i) +
+    char +
+    line.substring(i + 1, line.length
+  );
+  return output;
+}
+
+writeChar(char, x, y) {
+  let output = this;
+  let j = y - output.offset.top;
+  let i = x - output.offset.left;
+  let line = output.lines[j];
+  output.lines[j] = (
+    line.substring(0, i) +
+    char +
+    line.substring(i + 1, line.length
+  );
+  return output;
 }
