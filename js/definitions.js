@@ -117,48 +117,41 @@ function areaInit(selection) {
   };
 
   area.resize = function(selection) {
+    return subArea(this, selection);
+  }
+
+  writeChar = function(string, x, y) {
     let output = this;
-    let template = areaInit(selection);
-    for (let y = selection.ymin; y <= selection.ymax; y++) {
-      for (let x = selection.xmin; x <= selection.xmax; x++) {
-        template.lines[y - selection.ymin] = '';
-        if (this.contains(x, y)) {
-          template.lines[y - selection.ymin] += this.charAt(x, y);
-        } else {
-          template.lines[y - selection.ymin] += ' ';
-        }
-      }
-    }
-    output.lines = template.lines;
-    output.width = template.width;
-    output.height = template.height;
-    output.offset = template.offset;
+    let j = y - output.offset.top;
+    let i = x - output.offset.left;
+    let line = output.lines[j];
+    output.lines[j] = (
+      line.substring(0, i) +
+      string[0] +
+      line.substring(i + 1, line.length
+    );
     return output;
   };
 
   return area;
 }
 
-function mergeAreas(area1, area2) {
-  let selection = area1.selectAll();
-  let addIn = area2.selectAll();
-  selection.xmin = Math.min(selection.xmin, addIn.xmin);
-  selection.ymin = Math.min(selection.ymin, addIn.ymin);
-  selection.xmax = Math.max(selection.xmax, addIn.xmax);
-  selection.ymax = Math.max(selection.ymax, addIn.ymax);
-  let mergedAreas = areaInit(selection);
+function subArea(area, selection) {
+  let output = area;
+  let template = areaInit(selection);
   for (let y = selection.ymin; y <= selection.ymax; y++) {
     for (let x = selection.xmin; x <= selection.xmax; x++) {
-      mergedAreas.lines[y - selection.ymin] = '';
-      if (this.visibleAt(x, y)) {
-        mergedAreas.lines[y - selection.ymin] += area1.charAt(x, y);
-      } else if (otherArea.visibleAt(x, y)) {
-        mergedAreas.lines[y - selection.ymin] += area2.charAt(x, y);
+      template.lines[y - selection.ymin] = '';
+      if (this.contains(x, y)) {
+        template.lines[y - selection.ymin] += this.charAt(x, y);
       } else {
-        mergedAreas.lines[y - selection.ymin] += ' ';
+        template.lines[y - selection.ymin] += ' ';
       }
     }
   }
-  mergedAreas.type = 'basic';
-  return mergedAreas;
+  output.lines = template.lines;
+  output.width = template.width;
+  output.height = template.height;
+  output.offset = template.offset;
+  return output;
 };

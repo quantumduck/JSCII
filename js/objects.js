@@ -111,172 +111,79 @@ function rootAreaInit(width, height) {
   return bg;
 }
 
-
-
-
-
-function defaultBorder(left, top, bottom, right) {
-
-}
-
-
-
-// I'm going to try a functional apprach:
-// Having children of children is unnecessary complication.
-// Only the root area will have children.
-function rectangleInit(selection) {
-  let rect = areaInit(selection);
+function toRectangle(area) {
+  rect = this;
   rect.type = 'rectangle';
-  rect.offset = {left: selection.xmin, top: selection.ymin},
-
-
-
-    resize: function(newWidth, newHeight) {
-      let output = this;
-      if (newWidth < 0) {
-        output = resizeLeft(output, -newWidth);
-      } else {
-        output = resizeRight(output, newWidth);
-      }
-      if (newHeight < 0) {
-        output = resizeTop(output, -newHeight);
-      } else {
-        output = resizeBottom(output, newHeight);
-      }
-    }
-
-    addBorder: function(type, pattern) {
-      let output = this;
-    }
-
+  rect.border = {
+    top: {height: 0, rep: 1},
+    left: {width: 0, rep: 1},
+    bottom: {height: 0, rep: 1},
+    right: {width: 0, rep: 1}
   };
-}
 
-function textBoxInit(selection, content) {
-  let output = rectangleInit(selection);
-  output.type = 'textbox';
-}
+  rect.resize = function(selection) {
+    let outerSelection = selection;
+    let minWidth = this.border.top.height + this.border.bottom.height;
+    let minHeight = this.border.left.width + this.border.right.width;
+    if (selection.xmax - selection.xmin <= minWidth) {
+      outerSelection.xmax = selection.xmin + minWidth;
+    }
+    if (selection.ymax - selection.ymin <= minHeight) {
+      outerSelection.ymax = selection.ymin + minHeight;
+    }
+    let output = subArea(this, outerSelection);
+    
+  };
 
-
-resizeTop: function(drawObject, newHeight) {
-  let output = drawObject;
-  output.offset.top += (output.height - newHeight);
-  if (this.height > newHeight) {
-    for (var j = 0; j < (output.height - newHeight); i++) {
-      output.lines.shift();
+  rect.borderRegion(x, y) {
+    let selection = this.selectAll();
+    let left = selection.xmin + this.border.left.width;
+    let right = selection.xmax - this.border.right.width;
+    let top = selection.ymin + this.border.top.height;
+    let bottom = selection.ymax - this.border.bottom.height;
+    let region = '';
+    if this.contains(x, y) {
+      if (y < top) {
+        region += 'top';
+      } else if (y > bottom) {
+        region += 'bottom';
+      }
+      if (x < left) {
+        region += 'left';
+      } else if (x > right) {
+        region += 'right';
+      }
     }
-  } else {
-    var line = '';
-    for (var i = 0; i < output.width; i++) {
-      line += ' ';
-    }
-    for (var j = 0; j < (newHeight - output.height); j++) {
-      output.lines = [line].concat(output.lines);
-    }
+    return region;
   }
-  output.height = newHeight;
-},
 
+  return rect;
+}
 
-resizeLeft: function(newWidth) {
-  for (let j = 0; j < this.height; j++) {
-    if (this.width > newWidth) {
-      this.lines[j] = this.lines[j].substring((this.width - newWidth), this.width);
-    } else {
-      for (let i = 0; i < (newWdith - this.width); i++) {
-        this.lines[j] = ' ' + this.lines[j];
+function rectangleInit(selection) {
+  return toRectangle(areaInit(selection));
+}
+
+function mergeAreas(area1, area2) {
+  let selection = area1.selectAll();
+  let addIn = area2.selectAll();
+  selection.xmin = Math.min(selection.xmin, addIn.xmin);
+  selection.ymin = Math.min(selection.ymin, addIn.ymin);
+  selection.xmax = Math.max(selection.xmax, addIn.xmax);
+  selection.ymax = Math.max(selection.ymax, addIn.ymax);
+  let mergedAreas = areaInit(selection);
+  for (let y = selection.ymin; y <= selection.ymax; y++) {
+    for (let x = selection.xmin; x <= selection.xmax; x++) {
+      mergedAreas.lines[y - selection.ymin] = '';
+      if (this.visibleAt(x, y)) {
+        mergedAreas.lines[y - selection.ymin] += area1.charAt(x, y);
+      } else if (otherArea.visibleAt(x, y)) {
+        mergedAreas.lines[y - selection.ymin] += area2.charAt(x, y);
+      } else {
+        mergedAreas.lines[y - selection.ymin] += ' ';
       }
     }
   }
-  this.width = newWidth;
-},
-
-
-
-
-
-
-
-
-
-
-
-
-toTextBox: function() {
-  let textBox = textBoxInit(this);
-  for (let y = this.ymin; y <= this.ymax; y++) {
-    for (let x = this.xmin; x <= this.xmax; x++) {
-      textBox.lines[y][x] =
-    }
-  }
-}
-
-
-writeChar(char, x, y) {
-  let output = this;
-  let j = y - output.offset.top;
-  let i = x - output.offset.left;
-  let line = output.lines[j];
-  output.lines[j] = (
-    line.substring(0, i) +
-    char +
-    line.substring(i + 1, line.length
-  );
-  return output;
-}
-
-writeChar(char, x, y) {
-  let output = this;
-  let j = y - output.offset.top;
-  let i = x - output.offset.left;
-  let line = output.lines[j];
-  output.lines[j] = (
-    line.substring(0, i) +
-    char +
-    line.substring(i + 1, line.length
-  );
-  return output;
-}
-
-borderCharAt: function(x, y) {
-  let area = this.selectAll();
-  let region = borderRegion(x, y);
-  let border = this.border[region];
-  let numReps = border.length;
-  switch (region) {
-    case 'topleft':
-      return border[area.ymin - y - 1][area.xmin - x - 1];
-    case 'bottomleft':
-      return border[y - area.ymax - 1][area.xmin - x - 1];
-    case 'left':
-      return border[(y - ymin) % numReps][area.xmin - x - 1];
-    case 'right':
-      return border[(y - ymin) % numReps][area.xmax - x - 1];
-    case 'topright':
-      return border[area.ymin - y - 1][area.xmax - x - 1];
-    case 'bottomright':
-      return border[y - area.ymax - 1][area.xmax - x - 1];
-    case 'top':
-      return border[(x - xmin) % numReps][area.ymin - y - 1];
-    case 'bottom':
-      return border[(x - xmin) % numReps][y - area.ymax - 1];
-    default:
-      return false;
-  }
-},
-
-borderRegion: function(x, y) {
-  let area = this.selectAll();
-  let region = '';
-  if (y < area.ymin) {
-    region += 'top';
-  } else if (y > area.ymax) {
-    region += 'bottom';
-  }
-  if (x < area.xmin) {
-    region += 'left';
-  } else if (x > area.xmax) {
-    region += 'right';
-  }
-  return region;
+  mergedAreas.type = 'basic';
+  return mergedAreas;
 }
