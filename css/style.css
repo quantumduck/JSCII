@@ -1,5 +1,6 @@
 html {
   width: 100%;
+  font-family: monospace;
 }
 
 *,
@@ -48,4 +49,9 @@ body {
 
 .cursor {
   background-color: #bbffbb;
+}
+
+button {
+  font-family: monospace;
+  line-height: 1em;
 }
