@@ -127,10 +127,10 @@ function toRectangle(area) {
     let minWidth = this.border.top.height + this.border.bottom.height;
     let minHeight = this.border.left.width + this.border.right.width;
     let corners = [
-      this.corner('top', 'left'),
-      this.corner('top', 'right'),
-      this.corner('bottom', 'left'),
-      this.corner('bottom', 'right')
+      {v: 'top', h:'left', cor: this.corner('top', 'left')},
+      {v: 'top', h:'right', cor: this.corner('top', 'right')},
+      {v: 'bottom', h:'right', cor: this.corner('bottom', 'right')},
+      {v: 'bottom', h:'left', cor: this.corner('bottom', 'left')}
     ];
     let edges = [
       {edge: 'top', pat: this.borderPattern('top')},
@@ -147,17 +147,27 @@ function toRectangle(area) {
     let output = subArea(this, outerSelection);
     for (let i = 0; i < edges.length; i++) {
       if (edges[i].pat) {
-        output.setBorder(edges[i].pat, edges[i].edge);
+        output = output.setBorder(edges[i].pat, edges[i].edge);
       }
     }
     for (let i = 0; i < corners.length; i++) {
-      if (corners[i]) {
-        output.setBorder(edges[i].pat, edges[i].edge);
+      if (corners[i].cor) {
+        output = output.setCorner(corners[i].cor.lines, corners[i].v, corners[i].h);
       }
     }
+    return output;
+  };
+
+  rect.setCorner = function(pattern, edgeV, edgeH) {
+    let output = this;
+    let corner = this.corner(edgeV, edgeH);
+    corner.lines = pattern;
+    output.lines = mergeAreas(corner, output).lines;
+    return output;
   };
 
   rect.setBorder = function(pattern, edge) {
+    output = this;
     let selection = this.selectAll();
     let borderData = {};
     switch (edge) {
@@ -189,8 +199,7 @@ function toRectangle(area) {
     let border = subArea(this, selection);
     border.lines = contentFill(border.width, border.height, pattern);
     border.opaque = true;
-    output = mergeAreas(border, this);
-    output = toRectangle(output);
+    output.lines = mergeAreas(border, this).lines;
     output.border[edge] = borderData;
     return output;
   }

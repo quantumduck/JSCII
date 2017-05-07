@@ -16,6 +16,69 @@ var mode = {
 
 var currentMode = mode.overwrite;
 
+function areaInit(selection) {
+  let width = (selection.xmax - selection.xmin + 1);
+  let height = (selection.ymax - selection.ymin + 1);
+  let content = contentFill(width, height);
+  return {
+    type: 'basic',
+    lines: content,
+    width: content[0].length,
+    height: content.length,
+    offset: {left: selection.xmin , top: selection.ymin},
+    visible: true,
+    opaque: false
+    selectAll: function() {
+      return selectAll(this);
+    },
+    contains: function(x, y) {
+      return contains(this, x, y);
+    },
+    charAt: function(x, y) {
+      return charAt(this, x, y);
+    },
+    visibleAt: function(x, y) {
+      return visibleAt(this, x, y);
+    },
+    visiblePoints: function() {
+      return visiblePoints(this);
+    },
+    move: function(x, y) {
+      return moveArea(this, x, y);
+    },
+    resize: function(selection) {
+      return subArea(this, selection);
+    },
+    writeChar: function(string, x, y) {
+      return writeChar(this, string, x, y);
+    }
+  };
+}
+
+function selectAll(area) {
+  return {
+    x: area.offset.left,
+    y: area.offset.top,
+    xmin: area.offset.left,
+    ymin: area.offset.top,
+    xmax: area.offset.left + this.width - 1,
+    ymax: area.offset.top + this.height - 1
+  };
+}
+
+function writeChar(area, string, x, y) {
+  let output = area;
+  let j = y - output.offset.top;
+  let i = x - output.offset.left;
+  let line = output.lines[j];
+  output.lines[j] = (
+    line.substring(0, i) +
+    string[0] +
+    line.substring(i + 1, line.length
+  );
+  return output;
+}
+
 function contentFill(width, height, pattern) {
   if (!width || !height) {
     return false;
@@ -41,102 +104,60 @@ function contentFill(width, height, pattern) {
   return content;
 }
 
-function areaInit(selection) {
-  let width = (selection.xmax - selection.xmin + 1);
-  let height = (selection.ymax - selection.ymin + 1);
-  let content = contentFill(width, height);
-  let area =  {
-    type: 'basic',
-    lines: content,
-    width: content[0].length,
-    height: content.length,
-    offset: {left: selection.xmin , top: selection.ymin},
-    visible: true,
-    opaque: false
-  };
+function contains(area, x, y) {
+  let region = selectAll(area);
+  return (
+    x >= region.xmin &&
+    x <= region.xmax &&
+    y >= region.ymin &&
+    y <= region.ymax
+  );
+}
 
-  area.selectAll = function() {
-    return {
-      x: this.offset.left,
-      y: this.offset.top,
-      xmin: this.offset.left,
-      ymin: this.offset.top,
-      xmax: this.offset.left + this.width - 1,
-      ymax: this.offset.top + this.height - 1
-    };
-  };
-
-  area.contains = function(x, y) {
-    let area = this.selectAll();
-    return (
-      x >= area.xmin &&
-      x <= area.xmax &&
-      y >= area.ymin &&
-      y <= area.ymax
-    );
-  };
-
-  area.charAt = function(x, y) {
-    if this.contains(x, y) {
-      return this.lines[y - this.offset.top][x - this.offset.left];
-    } else {
-      return '';
-    }
-  };
-
-  area.visibleAt = function(x, y) {
-    if (this.contains(x, y)) {
-      if (this.visible) {
-        if (this.opaque) {
-          return true;
-        } else if (charAt(x, y) === ' ') {
-          return false;
-        } else {
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  area.visiblePoints = function() {
-    let points = [];
-    let area = this.selectAll();
-    for (let y = area.ymin; y <= area.ymax; y++) {
-      for (let x = area.xmin; x <= area.xmax; x++) {
-        if (this.visibleAt(x, y)) {
-          points.push({x: x, y: y});
-        }
-      }
-    }
-    return points;
-  };
-
-  area.move = function(x, y) {
-    let output = this;
-    output.offset.left += x;
-    output.offset.top += y;
-    return output;
-  };
-
-  area.resize = function(selection) {
-    return subArea(this, selection);
+function charAt(area, x, y) {
+  if contains(area, x, y) {
+    return area.lines[y - area.offset.top][x - area.offset.left];
+  } else {
+    return '';
   }
+}
 
-  writeChar = function(string, x, y) {
-    let output = this;
-    let j = y - output.offset.top;
-    let i = x - output.offset.left;
-    let line = output.lines[j];
-    output.lines[j] = (
-      line.substring(0, i) +
-      string[0] +
-      line.substring(i + 1, line.length
-    );
-    return output;
-  };
+function visibleAt(area, x, y) {
+  if (contains(area, x, y)) {
+    if (area.visible) {
+      if (area.opaque) {
+        return true;
+      } else if (charAt(area, x, y) === ' ') {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
-  return area;
+function visiblePoints(area, selection) {
+  let points = [];
+  let region = area.selectAll();
+  if (selection) {
+    region = selection;
+  }
+  for (let y = region.ymin; y <= region.ymax; y++) {
+    for (let x = region.xmin; x <= region.xmax; x++) {
+      if (visibleAt(area, x, y)) {
+        points.push({x: x, y: y});
+      }
+    }
+  }
+  return points;
+}
+
+function moveArea(area, x, y) {
+  let output = area;
+  output.offset.left += x;
+  output.offset.top += y;
+  return output;
 }
 
 function subArea(area, selection) {
@@ -179,6 +200,5 @@ function mergeAreas(area1, area2) {
       }
     }
   }
-  mergedAreas.type = 'basic';
   return mergedAreas;
 }
