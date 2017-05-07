@@ -35,7 +35,7 @@ function select(rootarea, point1, point2) {
   selection.nextLine = function() {
     return nextLine(this);
   };
-  selection.tags = function(x, y) {
+  selection.getTags = function(x, y) {
     return getSelectionTags(this.obj, this, x, y);
   }
   return selection;

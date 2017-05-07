@@ -9,7 +9,6 @@ function rootAreaInit(width, height) {
   };
   let bg = areaInit(selection);
   bg.type = 'background';
-  bg.opaque = true;
   bg.objects = [];
 
   bg.getObjectIndex = function(x, y) {
@@ -24,6 +23,14 @@ function rootAreaInit(width, height) {
     }
     return -1;
   };
+
+  bg.visibleCharAt(x, y) {
+    let area = this.objects[this.getObjectIndex(x, y)];
+    if (!area) {
+      area = this;
+    }
+    return area.contentAt(x, y);
+  }
 
   bg.reorderObject = function(objInd, level) {
     let output = this;

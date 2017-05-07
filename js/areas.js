@@ -34,8 +34,8 @@ function areaInit(selection) {
     contains: function(x, y) {
       return contains(this, x, y);
     },
-    charAt: function(x, y) {
-      return charAt(this, x, y);
+    contentAt: function(x, y) {
+      return contentAt(this, x, y);
     },
     visibleAt: function(x, y) {
       return visibleAt(this, x, y);
@@ -114,7 +114,7 @@ function contains(area, x, y) {
   );
 }
 
-function charAt(area, x, y) {
+function contentAt(area, x, y) {
   if contains(area, x, y) {
     return area.lines[y - area.offset.top][x - area.offset.left];
   } else {
@@ -127,7 +127,7 @@ function visibleAt(area, x, y) {
     if (area.visible) {
       if (area.opaque) {
         return true;
-      } else if (charAt(area, x, y) === ' ') {
+      } else if (contentAt(area, x, y) === ' ') {
         return false;
       } else {
         return true;
@@ -167,7 +167,7 @@ function subArea(area, selection) {
     for (let x = selection.xmin; x <= selection.xmax; x++) {
       template.lines[y - selection.ymin] = '';
       if (contains(this, x, y)) {
-        template.lines[y - selection.ymin] += this.charAt(x, y);
+        template.lines[y - selection.ymin] += this.contentAt(x, y);
       } else {
         template.lines[y - selection.ymin] += ' ';
       }
@@ -192,9 +192,9 @@ function mergeAreas(area1, area2) {
     for (let x = selection.xmin; x <= selection.xmax; x++) {
       merge.lines[y - selection.ymin] = '';
       if (visibleAt(this, x, y)) {
-        merge.lines[y - selection.ymin] += charAt(area1, x, y);
+        merge.lines[y - selection.ymin] += contentAt(area1, x, y);
       } else if (visibleAt(otherArea, x, y)) {
-        merge.lines[y - selection.ymin] += charAt(area2, x, y);
+        merge.lines[y - selection.ymin] += contentAt(area2, x, y);
       } else {
         merge.lines[y - selection.ymin] += ' ';
       }

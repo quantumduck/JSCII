@@ -40,3 +40,28 @@ borderRegion: function(x, y) {
   }
   return region;
 }
+
+function addRandomChar() {
+  var slots = emptySquares();
+  var slot;
+  var char;
+  if (slots.length) {
+    slot = slots(Math.floor(Math.random() * slots.length));
+    char = String.fromCodePoint(32 + Math.floor(Math.random() * 95));
+    return addChar(char, slot.x, slot.y);
+  } else {
+    return false;
+  }
+}
+
+function emptySquares() {
+  var results = [];
+  for (var i = 0; i < drawingArea.width(); i++) {
+    for (var j = 0; j < drawingArea.height(); j++) {
+      if (charAt(i, j) === ' ') {
+        results.push({x: i, y: j});
+      }
+    }
+  }
+  return results;
+}
