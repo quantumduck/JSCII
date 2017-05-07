@@ -122,31 +122,78 @@ function toRectangle(area) {
   };
 
   rect.resize = function(selection) {
-    let newSelection = selection;
+    let outerSelection = selection;
+    let innerSelection = selection;
     let minWidth = this.border.top.height + this.border.bottom.height;
     let minHeight = this.border.left.width + this.border.right.width;
-    let topleft = this.corner('top', 'left');
-    let topright = this.corner('top', 'right');
-    let bottomleft = this.corner('bottom', 'left');
-    let bottomright = this.corner('bottom', 'right');
-    if (selection.xmax - selection.xmin <= minWidth) {
-      newSelection.xmax = selection.xmin + minWidth;
+    let corners = [
+      this.corner('top', 'left'),
+      this.corner('top', 'right'),
+      this.corner('bottom', 'left'),
+      this.corner('bottom', 'right')
+    ];
+    let edges = [
+      {edge: 'top', pat: this.borderPattern('top')},
+      {edge: 'left', pat: this.borderPattern('left')},
+      {edge: 'right', pat: this.borderPattern('right')},
+      {edge: 'bottom', pat: this.borderPattern('bottom')}
+    ];
+    if (selection.xmax - selection.xmin < minWidth) {
+      outerSelection.xmax = selection.xmin + minWidth;
     }
-    if (selection.ymax - selection.ymin <= minHeight) {
-      newSelection.ymax = selection.ymin + minHeight;
+    if (selection.ymax - selection.ymin < minHeight) {
+      outerSelection.ymax = selection.ymin + minHeight;
     }
-    let output = subArea(this, newSelection);
-    let toplines = contentFill(
-      output.width,
-      output.height,
-      this.side('top').lines
-    );
-    let bottomlines = contentFill(
-      output.width,
-      output.height,
-      this.side('bottom').lines
-    );
+    let output = subArea(this, outerSelection);
+    for (let i = 0; i < edges.length; i++) {
+      if (edges[i].pat) {
+        output.setBorder(edges[i].pat, edges[i].edge);
+      }
+    }
+    for (let i = 0; i < corners.length; i++) {
+      if (corners[i]) {
+        output.setBorder(edges[i].pat, edges[i].edge);
+      }
+    }
   };
+
+  rect.setBorder = function(pattern, edge) {
+    let selection = this.selectAll();
+    let borderData = {};
+    switch (edge) {
+      case 'top': {
+        selection.ymax = selection.ymin + pattern.length - 1;
+        borderData.height = pattern.length;
+        borderData.rep = pattern[0].length;
+        break;
+      }
+      case 'bottom': {
+        selection.ymin = selection.ymax - pattern.length;
+        borderData.height = pattern.length;
+        borderData.rep = pattern[0].length;
+        break;
+      }
+      case 'left': {
+        selection.xmax = selection.xmin + pattern[0].length - 1;
+        borderData.width = pattern[0].length;
+        borderData.rep = pattern.length;
+        break;
+      }
+      case 'right': {
+        selection.xmin = selection.xmax - pattern[0].length;
+        borderData.width = pattern[0].length;
+        borderData.rep = pattern.length;
+        break;
+      }
+    }
+    let border = subArea(this, selection);
+    border.lines = contentFill(border.width, border.height, pattern);
+    border.opaque = true;
+    output = mergeAreas(border, this);
+    output = toRectangle(output);
+    output.border[edge] = borderData;
+    return output;
+  }
 
   rect.corner = function(edgeV, edgeH) {
     let selection = this.selectAll();
@@ -166,7 +213,7 @@ function toRectangle(area) {
     return false;
   };
 
-  rect.side = function(edge) {
+  rect.borderPattern = function(edge) {
     let selection = this.selectAll();
     if (this.border[edge].width > 0) {
       switch (edge) {

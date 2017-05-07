@@ -17,6 +17,9 @@ var mode = {
 var currentMode = mode.overwrite;
 
 function contentFill(width, height, pattern) {
+  if (!width || !height) {
+    return false;
+  }
   let content = [];
   if (pattern) {
     let xlen = pattern[0].length;
