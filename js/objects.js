@@ -122,68 +122,83 @@ function toRectangle(area) {
   };
 
   rect.resize = function(selection) {
-    let outerSelection = selection;
+    let newSelection = selection;
     let minWidth = this.border.top.height + this.border.bottom.height;
     let minHeight = this.border.left.width + this.border.right.width;
+    let topleft = this.corner('top', 'left');
+    let topright = this.corner('top', 'right');
+    let bottomleft = this.corner('bottom', 'left');
+    let bottomright = this.corner('bottom', 'right');
     if (selection.xmax - selection.xmin <= minWidth) {
-      outerSelection.xmax = selection.xmin + minWidth;
+      newSelection.xmax = selection.xmin + minWidth;
     }
     if (selection.ymax - selection.ymin <= minHeight) {
-      outerSelection.ymax = selection.ymin + minHeight;
+      newSelection.ymax = selection.ymin + minHeight;
     }
-    let output = subArea(this, outerSelection);
-    
+    let output = subArea(this, newSelection);
+    let toplines = contentFill(
+      output.width,
+      output.height,
+      this.side('top').lines
+    );
+    let bottomlines = contentFill(
+      output.width,
+      output.height,
+      this.side('bottom').lines
+    );
   };
 
-  rect.borderRegion(x, y) {
+  rect.corner = function(edgeV, edgeH) {
     let selection = this.selectAll();
-    let left = selection.xmin + this.border.left.width;
-    let right = selection.xmax - this.border.right.width;
-    let top = selection.ymin + this.border.top.height;
-    let bottom = selection.ymax - this.border.bottom.height;
-    let region = '';
-    if this.contains(x, y) {
-      if (y < top) {
-        region += 'top';
-      } else if (y > bottom) {
-        region += 'bottom';
+    if ((this.border[edgeH].width > 0) && (this.border[edgeV].height > 0)) {
+      if (edgeH === 'left') {
+        selection.xmax = selection.xmin + this.border.left.width - 1;
+      else if (edgeH === 'right'){
+        selection.xmin = selection.xmax - this.border.right.width;
       }
-      if (x < left) {
-        region += 'left';
-      } else if (x > right) {
-        region += 'right';
+      if (edgeV === 'top') {
+        selection.ymax = selection.ymin + this.border.top.height - 1;
+      } else if (edgeV === 'bottom') {
+        selection.ymin = selection.ymax - this.border.bottom.height;
       }
+      return subArea(this, selection);
     }
-    return region;
-  }
+    return false;
+  };
+
+  rect.side = function(edge) {
+    let selection = this.selectAll();
+    if (this.border[edge].width > 0) {
+      switch (edge) {
+        case 'left':
+        selection.ymin += this.border.top.height;
+        selection.ymax = selection.ymin + this.border.left.rep;
+        selection.xmax = selection.xmin + this.border.left.width - 1;
+        break;
+        case 'right':
+        selection.ymin += this.border.top.height;
+        selection.ymax = selection.ymin + this.border.right.rep;
+        selection.xmin = selection.xmax - this.border.right.width;
+        break;
+        case 'top':
+        selection.xmin += this.border.left.width;
+        selection.xmax = selection.xmin + this.border.top.rep;
+        selection.ymax = selection.ymin + this.border.top.height - 1;
+        break;
+        case 'bottom':
+        selection.xmin += this.border.left.width;
+        selection.xmax = selection.xmin + this.border.bottom.rep;
+        selection.ymin = selection.ymax - this.border.bottom.height;
+        break;
+      }
+      return subArea(this, selection);
+    }
+    return false;
+  };
 
   return rect;
 }
 
 function rectangleInit(selection) {
   return toRectangle(areaInit(selection));
-}
-
-function mergeAreas(area1, area2) {
-  let selection = area1.selectAll();
-  let addIn = area2.selectAll();
-  selection.xmin = Math.min(selection.xmin, addIn.xmin);
-  selection.ymin = Math.min(selection.ymin, addIn.ymin);
-  selection.xmax = Math.max(selection.xmax, addIn.xmax);
-  selection.ymax = Math.max(selection.ymax, addIn.ymax);
-  let mergedAreas = areaInit(selection);
-  for (let y = selection.ymin; y <= selection.ymax; y++) {
-    for (let x = selection.xmin; x <= selection.xmax; x++) {
-      mergedAreas.lines[y - selection.ymin] = '';
-      if (this.visibleAt(x, y)) {
-        mergedAreas.lines[y - selection.ymin] += area1.charAt(x, y);
-      } else if (otherArea.visibleAt(x, y)) {
-        mergedAreas.lines[y - selection.ymin] += area2.charAt(x, y);
-      } else {
-        mergedAreas.lines[y - selection.ymin] += ' ';
-      }
-    }
-  }
-  mergedAreas.type = 'basic';
-  return mergedAreas;
 }
