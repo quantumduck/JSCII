@@ -166,7 +166,7 @@ function subArea(area, selection) {
   for (let y = selection.ymin; y <= selection.ymax; y++) {
     for (let x = selection.xmin; x <= selection.xmax; x++) {
       template.lines[y - selection.ymin] = '';
-      if (this.contains(x, y)) {
+      if (contains(this, x, y)) {
         template.lines[y - selection.ymin] += this.charAt(x, y);
       } else {
         template.lines[y - selection.ymin] += ' ';
@@ -181,24 +181,24 @@ function subArea(area, selection) {
 }
 
 function mergeAreas(area1, area2) {
-  let selection = area1.selectAll();
-  let addIn = area2.selectAll();
+  let selection = selectAll(area1);
+  let addIn = selectAll(area2);
   selection.xmin = Math.min(selection.xmin, addIn.xmin);
   selection.ymin = Math.min(selection.ymin, addIn.ymin);
   selection.xmax = Math.max(selection.xmax, addIn.xmax);
   selection.ymax = Math.max(selection.ymax, addIn.ymax);
-  let mergedAreas = areaInit(selection);
+  let merge = areaInit(selection);
   for (let y = selection.ymin; y <= selection.ymax; y++) {
     for (let x = selection.xmin; x <= selection.xmax; x++) {
-      mergedAreas.lines[y - selection.ymin] = '';
-      if (this.visibleAt(x, y)) {
-        mergedAreas.lines[y - selection.ymin] += area1.charAt(x, y);
-      } else if (otherArea.visibleAt(x, y)) {
-        mergedAreas.lines[y - selection.ymin] += area2.charAt(x, y);
+      merge.lines[y - selection.ymin] = '';
+      if (visibleAt(this, x, y)) {
+        merge.lines[y - selection.ymin] += charAt(area1, x, y);
+      } else if (visibleAt(otherArea, x, y)) {
+        merge.lines[y - selection.ymin] += charAt(area2, x, y);
       } else {
-        mergedAreas.lines[y - selection.ymin] += ' ';
+        merge.lines[y - selection.ymin] += ' ';
       }
     }
   }
-  return mergedAreas;
+  return merge;
 }
