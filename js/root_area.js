@@ -16,7 +16,7 @@ function rootAreaInit(width, height) {
   bg.getObjectIndex = function(x, y) {
     let index = this.objects.length - 1;
     while (index >= 0) {
-      if (this.objects[index].contains(x, y)) {
+      if (this.objects[index].hasPoint(x, y)) {
         if (this.objects[index].visibleAt(x, y)) {
           return index;
         }

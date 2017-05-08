@@ -13,7 +13,7 @@ function select(rootarea, point1, point2) {
     area = rootarea;
   }
   let selection = area.selectAll();
-  selection.obj = area;
+  selection.index = objIndex;
   if (point2) {
     selection.x = point1.x;
     selection.y = point1.y;
@@ -21,7 +21,7 @@ function select(rootarea, point1, point2) {
     selection.xmax = Math.max(point1.x, point2.x);
     selection.ymin = Math.min(point1.y, point2.y);
     selection.ymax = Math.max(point1.y, point2.y);
-    selection.obj = rootarea;
+    selection.new = areaInit(selection);
   } else if (area.border) {
     selection.x += area.border.left.width;
     selection.y += area.border.top.height;

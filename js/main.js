@@ -23,6 +23,11 @@ $(function() {
 
   $('#drawing-area').on('mousemove', function(e) {
     if (e.buttons === 1) {
+      if (selection.obj) {
+        if (!selection.obj.isEmpty) {
+          drawingArea.objects.push(selection.obj);
+        }
+      }
       if (!selecting) {
         selecting = true;
         selectionStart = getXY(e.pageX, e.pageY, drawingWidth, drawingHeight);
@@ -61,7 +66,8 @@ $(function() {
   $(window).on('keydown', function(e) {
     console.log(e.key);
     if (safeChar(e.key)) {
-      console.log([selection.x, selection.y]);
+      // console.log([selection.x, selection.y]);
+      if selection.new
       drawingArea = drawingArea.writeChar(e.key, selection.x, selection.y);
       selection = next(selection);
     } else {

@@ -153,6 +153,10 @@ function visiblePoints(area, selection) {
   return points;
 }
 
+function isEmpty(area) {
+  return area.visilbePoints(area).length === 0;
+}
+
 function moveArea(area, x, y) {
   let output = area;
   output.offset.left += x;
