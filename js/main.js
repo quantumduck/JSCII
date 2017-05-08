@@ -60,14 +60,20 @@ $(function() {
   $(window).on('keyup', function(e) {
     console.log(e.key);
     if (safeChar(e.key)) {
-      drawingArea = drawingArea.writeChar(e.key, selection.x, selection.y)
+      console.log([selection.x, selection.y]);
+      drawingArea = drawingArea.writeChar(e.key, selection.x, selection.y);
       selection = next(selection);
     } else {
       switch (e.key) {
-        case "Enter":
-          selection.setToNextLine();
+        case 'Enter':
+          selection = nextLine(selection);
+        break;
+        case 'Backspace':
+          selection = prev(selection);
+          drawingArea = drawingArea.writeChar(' ', selection.x, selection.y);
         break;
       }
     }
+    redraw(drawingArea, selection);
   });
 });

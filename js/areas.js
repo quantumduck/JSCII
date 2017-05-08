@@ -74,7 +74,7 @@ function writeChar(area, string, x, y) {
   output.lines[j] = (
     line.substring(0, i) +
     string[0] +
-    line.substring(i + 1, line.length - 1)
+    line.substring(i + 1, line.length)
   );
   return output;
 }
