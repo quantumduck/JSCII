@@ -14,7 +14,7 @@ $(function() {
         selecting = true;
         selectionStart = getXY(drawingArea, e.pageX, e.pageY);
         selectionEnd = selectionStart;
-        selection = select(drawingArea, {selectionStart.x, selectionStart.y});
+        selection = select(drawingArea, selectionStart);
         redraw(drawingArea, selection);
       } else {
         let newPoint = getXY(e.pageX, e.pageY, drawingWidth, drawingHeight);
@@ -23,6 +23,7 @@ $(function() {
           newPoint.y != selectionEnd.y
         ) {
           selectionEnd = newPoint;
+          console.log(selectionEnd);
           if (
             selectionStart.x === selectionEnd.x &&
             selectionEnd.y === selectionEnd.y
@@ -32,7 +33,7 @@ $(function() {
             selection = select(drawingArea, selectionStart, selectionEnd);
           }
           redraw(drawingArea, selection);
-        )
+        }
       }
     }
   });
@@ -45,10 +46,9 @@ $(function() {
 
   $(window).on('keyup', function(e) {
     console.log(e.key);
-    if
     if (safeChar(e.key)) {
       drawingArea = drawingArea.writeChar(e.key, selection.x, selection.y)
-      selection.setToNext();
+      selection = next(selection);
     } else {
       switch (e.key) {
         case "Enter":

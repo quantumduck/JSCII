@@ -1,10 +1,10 @@
 function redraw(rootarea, selection) {
   let timeout = 5;
-  setTimeout(function(rootarea, selection) {
+  // setTimeout(function(rootarea, selection) {
     $('#drawing-area').html(getHTML(rootarea, selection));
     // This line ensures getOffset() works correctly.
     $('body').css('max-width', $('#drawing-container').css('width'));
-  }, timeout);
+  // }, timeout);
 }
 
 // The redraw function must be called after every change to ensure
@@ -55,13 +55,14 @@ function getHTML(rootarea, selection) {
     if (y < rootarea.height - 1) {
       newHTML += '<br>';
     }
-    return newHTML;
   }
+  return newHTML;
+}
   // Insert the new HTML code into the DOM
   // $('#drawing-area').html(newHTML);
   // This line ensures getOffset works correctly.
   // $('body').css('max-width', $('#drawing-container').css('width'));
-}
+
 
 
 // Get offset of drawing-area in pixels

@@ -61,8 +61,8 @@ function selectAll(area) {
     y: area.offset.top,
     xmin: area.offset.left,
     ymin: area.offset.top,
-    xmax: area.offset.left + this.width - 1,
-    ymax: area.offset.top + this.height - 1
+    xmax: area.offset.left + area.width - 1,
+    ymax: area.offset.top + area.height - 1
   };
 }
 
