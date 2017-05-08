@@ -30,30 +30,62 @@ function select(rootarea, point1, point2) {
     selection.xmax -= area.border.right.width;
     selection.ymax -= area.border.bottom.height;
   }
-  selection.toNext = function() {
+  selection.forward = function() {
     return next(this);
   };
-  selection.toNextLine = function() {
+  selection.back = function() {
+    return prev(selection);
+  }
+  selection.enter = function() {
     return nextLine(this);
   };
   selection.getTags = function(x, y) {
     return getSelectionTags(this.obj, this, x, y);
-  }
+  };
+  selection.move = function(direction) {
+    let output = this;
+    switch (direction) {
+      case 'ArrowUp':
+      if (this.y === this.ymin) {
+        output.y = this.ymax;
+      } else {
+        output.y--;
+      }
+      break;
+      case 'ArrowDown':
+      if (this.y === this.ymax) {
+        output.y = this.ymin;
+      } else {
+        output.y++;
+      }
+      break;
+      case 'ArrowLeft':
+      if (this.x === this.xmin) {
+        output.x = this.xmax;
+      } else {
+        output.x--;
+      }
+      break;
+      case 'ArrowRight':
+      if (this.x === this.xmax) {
+        output.x = this.xmin;
+      } else {
+        output.x++;
+      }
+    }
+    return output;
+  };
   return selection;
 }
 
+
+
 function next(selection) {
   let output = selection;
-  if (selection.y < selection.ymax) {
-    if (selection.x < selection.xmax) {
-      output.x++;
-    } else {
-      output.x = selection.xmin;
-      output.y++;
-    }
+  if (selection.x < selection.xmax) {
+    output.x++;
   } else {
-    output.x = selection.xmin;
-    output.y = selection.ymin;
+    output = nextLine(output);
   }
   return output;
 }
@@ -71,16 +103,15 @@ function nextLine(selection) {
 
 function prev(selection) {
   let output = selection;
-  if (selection.y > selection.ymin) {
-    if (selection.x > selection.xmin) {
-      output.x--;
-    } else {
-      output.x = selection.xmax;
-      output.y--;
-    }
+  if (selection.x > selection.xmin) {
+    output.x--;
   } else {
     output.x = selection.xmax;
-    output.y = selection.ymax;
+    if (selection.y > selection.ymin) {
+      output.y--;
+    } else {
+      output.y = selection.ymax;
+    }
   }
   return output;
 }

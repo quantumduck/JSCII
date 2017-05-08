@@ -57,7 +57,7 @@ $(function() {
     }
   });
 
-  $(window).on('keyup', function(e) {
+  $(window).on('keydown', function(e) {
     console.log(e.key);
     if (safeChar(e.key)) {
       console.log([selection.x, selection.y]);
@@ -67,11 +67,17 @@ $(function() {
       switch (e.key) {
         case 'Enter':
           selection = nextLine(selection);
-        break;
+          break;
         case 'Backspace':
           selection = prev(selection);
           drawingArea = drawingArea.writeChar(' ', selection.x, selection.y);
-        break;
+          break;
+        case 'ArrowUp':
+        case 'ArrowDown':
+        case 'ArrowLeft':
+        case 'ArrowRight':
+          selection = selection.move(e.key);
+          break;
       }
     }
     redraw(drawingArea, selection);
