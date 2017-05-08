@@ -30,10 +30,10 @@ function select(rootarea, point1, point2) {
     selection.xmax -= area.border.right.width;
     selection.ymax -= area.border.bottom.height;
   }
-  selection.next = function() {
+  selection.toNext = function() {
     return next(this);
   };
-  selection.nextLine = function() {
+  selection.toNextLine = function() {
     return nextLine(this);
   };
   selection.getTags = function(x, y) {

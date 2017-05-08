@@ -31,8 +31,8 @@ function areaInit(selection) {
     selectAll: function() {
       return selectAll(this);
     },
-    contains: function(x, y) {
-      return contains(this, x, y);
+    hasPoint: function(x, y) {
+      return hasPoint(this, x, y);
     },
     contentAt: function(x, y) {
       return contentAt(this, x, y);
@@ -104,7 +104,7 @@ function contentFill(width, height, pattern) {
   return content;
 }
 
-function contains(area, x, y) {
+function hasPoint(area, x, y) {
   let region = selectAll(area);
   return (
     x >= region.xmin &&
@@ -115,7 +115,7 @@ function contains(area, x, y) {
 }
 
 function contentAt(area, x, y) {
-  if (contains(area, x, y)) {
+  if (hasPoint(area, x, y)) {
     return area.lines[y - area.offset.top][x - area.offset.left];
   } else {
     return '';
@@ -123,7 +123,7 @@ function contentAt(area, x, y) {
 }
 
 function visibleAt(area, x, y) {
-  if (contains(area, x, y)) {
+  if (hasPoint(area, x, y)) {
     if (area.visible) {
       if (area.opaque) {
         return true;
@@ -166,7 +166,7 @@ function subArea(area, selection) {
   for (let y = selection.ymin; y <= selection.ymax; y++) {
     for (let x = selection.xmin; x <= selection.xmax; x++) {
       template.lines[y - selection.ymin] = '';
-      if (contains(this, x, y)) {
+      if (hasPoint(this, x, y)) {
         template.lines[y - selection.ymin] += this.contentAt(x, y);
       } else {
         template.lines[y - selection.ymin] += ' ';
