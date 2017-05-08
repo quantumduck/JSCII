@@ -1,11 +1,13 @@
+'use strict';
+
 function rootAreaInit(width, height) {
   let selection = {
     x: 0,
     y: 0,
     xmin: 0,
     ymin: 0,
-    xmax: width - 1;
-    ymax: height - 1;
+    xmax: width - 1,
+    ymax: height - 1
   };
   let bg = areaInit(selection);
   bg.type = 'background';
@@ -24,13 +26,13 @@ function rootAreaInit(width, height) {
     return -1;
   };
 
-  bg.visibleCharAt(x, y) {
+  bg.visibleCharAt = function(x, y) {
     let area = this.objects[this.getObjectIndex(x, y)];
     if (!area) {
       area = this;
     }
     return area.contentAt(x, y);
-  }
+  };
 
   bg.reorderObject = function(objInd, level) {
     let output = this;
@@ -58,6 +60,7 @@ function rootAreaInit(width, height) {
           break;
         }
       }
+    }
     return output;
   };
 

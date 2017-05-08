@@ -27,7 +27,7 @@ function areaInit(selection) {
     height: content.length,
     offset: {left: selection.xmin , top: selection.ymin},
     visible: true,
-    opaque: false
+    opaque: false,
     selectAll: function() {
       return selectAll(this);
     },
@@ -74,7 +74,7 @@ function writeChar(area, string, x, y) {
   output.lines[j] = (
     line.substring(0, i) +
     string[0] +
-    line.substring(i + 1, line.length
+    line.substring(i + 1, line.length - 1)
   );
   return output;
 }
@@ -115,7 +115,7 @@ function contains(area, x, y) {
 }
 
 function contentAt(area, x, y) {
-  if contains(area, x, y) {
+  if (contains(area, x, y)) {
     return area.lines[y - area.offset.top][x - area.offset.left];
   } else {
     return '';

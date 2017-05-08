@@ -1,5 +1,7 @@
+'use strict';
+
 function toRectangle(area) {
-  rect = area;
+  let rect = area;
   rect.type = 'rectangle';
   rect.border = {
     top: {height: 0, rep: 1},
@@ -13,7 +15,7 @@ function toRectangle(area) {
   rect.setCorner = function(edgeV, edgeH, pattern) {
     return setCorner(this, edgeV, edgeH, pattern);
   };
-  rect.borderPattern(edge) {
+  rect.borderPattern = function(edge) {
     return borderPattern(this, edge);
   };
   rect.setBorder = function(edge, pattern) {
@@ -37,7 +39,7 @@ function corner(rect, edgeV, edgeH) {
     if ((bor[edgeH].width > 0) && (bor[edgeV].height > 0)) {
       if (edgeH === 'left') {
         selection.xmax = selection.xmin + bor.left.width - 1;
-      else if (edgeH === 'right') {
+      } else if (edgeH === 'right') {
         selection.xmin = selection.xmax - bor.right.width;
       }
       if (edgeV === 'top') {
