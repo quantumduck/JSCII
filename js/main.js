@@ -65,16 +65,14 @@ $(function() {
 
   $(window).on('keydown', function(e) {
     console.log(e.key);
+    let area = drawingArea.objects[selection.index];
+    if (!area) {
+      area = drawingArea;
+    }
     if (safeChar(e.key)) {
       // console.log([selection.x, selection.y]);
-      let area = drawingArea;
-      if (selection.index >= 0) {
-        area = drawingArea.objects[selection.index];
-        area = area.writeChar(e.key, selection.x, selection.y);
-        drawingArea.objects[selection.index] = area;
-      } else {
-        drawingArea = drawingArea.writeChar(e.key, selection.x, selection.y);
-      }
+      area = area.writeChar(e.key, selection.x, selection.y);
+      drawingArea = drawingArea.updateObject(selection.index, area);
       selection = selection.forward();
     } else {
       switch (e.key) {
@@ -83,7 +81,8 @@ $(function() {
           break;
         case 'Backspace':
           selection = selection.back();
-          drawingArea = drawingArea.writeChar(' ', selection.x, selection.y);
+          area = area.writeChar(' ', selection.x, selection.y);
+          drawingArea = drawingArea.updateObject(selection.index, area);
           break;
         case 'ArrowUp':
         case 'ArrowDown':

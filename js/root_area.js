@@ -26,6 +26,15 @@ function rootAreaInit(width, height) {
     return -1;
   };
 
+  bg.updateObject = function(objInd, area) {
+    let output = this;
+    if (objInd === -1) {
+      return area;
+    }
+    output.objects[objInd] = area;
+    return output;
+  }
+
   bg.visibleCharAt = function(x, y) {
     let area = this.objects[this.getObjectIndex(x, y)];
     if (!area) {
