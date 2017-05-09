@@ -17,8 +17,9 @@ function getHTML(rootarea, selection) {
       let char = rootarea.visibleCharAt(x, y);
       if (selection) {
         selectionTags = selection.getTags(x, y);
-        if (selection.obj.visibleAt(x, y)) {
-          char = selection.obj.contentAt(x, y);
+        let area = rootarea.objects[selection.index];
+        if (area && area.visibleAt(x, y)) {
+          char = area.contentAt(x, y);
         }
       }
 

@@ -1,10 +1,11 @@
 'use strict';
 
-function deselect() {
+function selectNewArea(rootarea, point1, point2) {
   return {
-    size: 0
+
   }
 }
+
 
 function select(rootarea, point1, point2) {
   let objInd = rootarea.getObjectIndex(point1.x, point1.y);
@@ -13,15 +14,17 @@ function select(rootarea, point1, point2) {
     area = rootarea;
   }
   let selection = area.selectAll();
-  selection.index = objIndex;
-  if (point2) {
+  selection.index = objInd;
+  if (objInd < 0) {
     selection.x = point1.x;
     selection.y = point1.y;
+  }
+  if (point2) {
     selection.xmin = Math.min(point1.x, point2.x);
     selection.xmax = Math.max(point1.x, point2.x);
     selection.ymin = Math.min(point1.y, point2.y);
     selection.ymax = Math.max(point1.y, point2.y);
-    selection.new = areaInit(selection);
+    selection.index = rootarea.objects.length;
   } else if (area.border) {
     selection.x += area.border.left.width;
     selection.y += area.border.top.height;
@@ -31,16 +34,16 @@ function select(rootarea, point1, point2) {
     selection.ymax -= area.border.bottom.height;
   }
   selection.forward = function() {
-    return next(this);
+    return selectNext(this);
   };
   selection.back = function() {
-    return prev(selection);
-  }
+    return selectPrev(selection);
+  };
   selection.enter = function() {
-    return nextLine(this);
+    return selectNextLine(this);
   };
   selection.getTags = function(x, y) {
-    return getSelectionTags(this.obj, this, x, y);
+    return getSelectionTags(area, this, x, y);
   };
   selection.move = function(direction) {
     let output = this;
@@ -78,19 +81,17 @@ function select(rootarea, point1, point2) {
   return selection;
 }
 
-
-
-function next(selection) {
+function selectNext(selection) {
   let output = selection;
   if (selection.x < selection.xmax) {
     output.x++;
   } else {
-    output = nextLine(output);
+    output = selectNextLine(output);
   }
   return output;
 }
 
-function nextLine(selection) {
+function selectNextLine(selection) {
   let output = selection;
   output.x = selection.xmin;
   if (selection.y < selection.ymax) {
@@ -101,7 +102,7 @@ function nextLine(selection) {
   return output;
 }
 
-function prev(selection) {
+function selectPrev(selection) {
   let output = selection;
   if (selection.x > selection.xmin) {
     output.x--;
@@ -112,6 +113,16 @@ function prev(selection) {
     } else {
       output.y = selection.ymax;
     }
+  }
+  return output;
+}
+
+function clearEmptySelections(rootarea) {
+  let output = rootarea;
+  let topObject = output.objects[output.objects.length - 1];
+  while (topObject && topObject.isEmpty()) {
+    output.objects.pop();
+    topObject = output.objects[output.objects.length - 1];
   }
   return output;
 }

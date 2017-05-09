@@ -51,6 +51,9 @@ function areaInit(selection) {
     },
     writeChar: function(string, x, y) {
       return writeChar(this, string, x, y);
+    },
+    isEmpty: function() {
+      return isEmpty(this);
     }
   };
 }
@@ -154,7 +157,17 @@ function visiblePoints(area, selection) {
 }
 
 function isEmpty(area) {
-  return area.visilbePoints(area).length === 0;
+  if (area.opaque) {
+    return false;
+  }
+  let j = 0;
+  while (!area.lines[j].trim()) {
+    j++;
+    if (j >= area.height - 1) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function moveArea(area, x, y) {

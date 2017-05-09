@@ -23,15 +23,11 @@ $(function() {
 
   $('#drawing-area').on('mousemove', function(e) {
     if (e.buttons === 1) {
-      if (selection.obj) {
-        if (!selection.obj.isEmpty) {
-          drawingArea.objects.push(selection.obj);
-        }
-      }
       if (!selecting) {
         selecting = true;
         selectionStart = getXY(e.pageX, e.pageY, drawingWidth, drawingHeight);
         selectionEnd = selectionStart;
+        drawingArea = clearEmptySelections(drawingArea);
         selection = select(drawingArea, selectionStart);
         redraw(drawingArea, selection);
       } else {
@@ -46,12 +42,16 @@ $(function() {
             selectionStart.x === selectionEnd.x &&
             selectionEnd.y === selectionEnd.y
           ) {
+            drawingArea = clearEmptySelections(drawingArea);
             selection = select(drawingArea, selectionStart);
           } else {
+            drawingArea = clearEmptySelections(drawingArea);
             selection = select(drawingArea, selectionStart, selectionEnd);
+            drawingArea.objects.push(areaInit(selection));
+            console.log(selection);
+            redraw(drawingArea, selection);
           }
-          console.log(selection);
-          redraw(drawingArea, selection);
+
         }
       }
     }
@@ -67,16 +67,22 @@ $(function() {
     console.log(e.key);
     if (safeChar(e.key)) {
       // console.log([selection.x, selection.y]);
-      if selection.new
-      drawingArea = drawingArea.writeChar(e.key, selection.x, selection.y);
-      selection = next(selection);
+      let area = drawingArea;
+      if (selection.index >= 0) {
+        area = drawingArea.objects[selection.index];
+        area = area.writeChar(e.key, selection.x, selection.y);
+        drawingArea.objects[selection.index] = area;
+      } else {
+        drawingArea = drawingArea.writeChar(e.key, selection.x, selection.y);
+      }
+      selection = selection.forward();
     } else {
       switch (e.key) {
         case 'Enter':
-          selection = nextLine(selection);
+          selection = selection.enter();
           break;
         case 'Backspace':
-          selection = prev(selection);
+          selection = selection.back();
           drawingArea = drawingArea.writeChar(' ', selection.x, selection.y);
           break;
         case 'ArrowUp':
