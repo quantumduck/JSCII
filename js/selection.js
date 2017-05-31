@@ -1,14 +1,14 @@
 'use strict';
 
 function newSelection(rootarea, point1, point2) {
-  var objInd = rootarea.getObjectIndex(point1.x, point1.y);
-  var area = rootarea.objects[objInd];
+  var index = rootarea.getSubAreaIndex(point1.x, point1.y);
+  var area = rootarea.subAreas[index];
   if (!area) {
     area = rootarea;
   }
   var selection = area.selectAll();
-  selection.index = objInd;
-  if (objInd < 0) {
+  selection.index = index;
+  if (index < 0) {
     selection.x = point1.x;
     selection.y = point1.y;
   }
@@ -17,7 +17,7 @@ function newSelection(rootarea, point1, point2) {
     selection.xmax = Math.max(point1.x, point2.x);
     selection.ymin = Math.min(point1.y, point2.y);
     selection.ymax = Math.max(point1.y, point2.y);
-    selection.index = rootarea.objects.length;
+    selection.index = rootarea.subAreas.length;
   } else if (area.border) {
     selection.x += area.border.left.width;
     selection.y += area.border.top.height;
@@ -104,10 +104,10 @@ function cursorPrev(selection) {
 
 function clearEmptySelections(rootarea) {
   var output = rootarea;
-  var topObject = output.objects[output.objects.length - 1];
-  while (topObject && topObject.isEmpty()) {
-    output.objects.pop();
-    topObject = output.objects[output.objects.length - 1];
+  var topArea = rootarea.subAreas[rootarea.subAreas.length - 1];
+  while (topArea && topArea.isEmpty()) {
+    output.subAreas.pop();
+    topArea = output.subAreas[output.subAreas.length - 1];
   }
   return output;
 }

@@ -21,8 +21,8 @@ function rootAreaInit(width, height) {
   bg.getSubAreaIndex = function(x, y) {
     var index = this.subAreas.length - 1;
     while (index >= 0) {
-      if (hasPoint(this.subArea[index], x, y)) {
-        if (visibleAt(this.subArea[index], x, y)) {
+      if (hasPoint(this.subAreas[index], x, y)) {
+        if (visibleAt(this.subAreas[index], x, y)) {
           return index;
         }
       }
@@ -31,7 +31,7 @@ function rootAreaInit(width, height) {
     return -1;
   };
   bg.visibleCharAt = function(x, y) {
-    var area = this.subArea[this.getsubAreaIndex(x, y)];
+    var area = this.subAreas[this.getSubAreaIndex(x, y)];
     if (!area) {
       area = this;
     }
@@ -87,7 +87,7 @@ function updateSubArea(area, index, subArea) {
   return output;
 }
 
-deleteSubArea = function(area, index) {
+function deleteSubArea(area, index) {
   var output = area;
   if (area.subAreas[index]) {
     output = reorderSubArea(area, index, 'top');

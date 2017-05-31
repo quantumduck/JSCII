@@ -11,7 +11,7 @@ $(function() {
     height: 31, // Height of drawing area (in chars)
     area: rootAreaInit(54, 31), // Drawing area
   };
-  root.redraw(); // Write Drawing area object to DOM
+  redraw(root); // Write Drawing area object to DOM
 
   $('#drawing-area').on('click', function(e) {
     // When in select mode, remember point clicked and select that point
@@ -19,7 +19,7 @@ $(function() {
     if(root.area.hasPoint(root.selectionStart.x, root.selectionStart.y)) {
       console.log(root.selectionStart);
       root.selection = newSelection(root.area, root.selectionStart);
-      root.redraw();
+      redraw(root);
     } else {
       // Keep track of bad click events...
       console.log(root.selectionStart);
@@ -39,16 +39,16 @@ $(function() {
         root.selectionEnd = root.selectionStart;
         root.area = clearEmptySelections(root.area);
         root.selection = newSelection(root.area, root.selectionStart);
-        root.redraw();
+        redraw(root);
       } else {
         // Resize current selection
         var newPoint = getXY(e.pageX, e.pageY, root.width, root.height);
         if (
-          newPoint.x != selectionEnd.x ||
-          newPoint.y != selectionEnd.y
+          newPoint.x != root.selectionEnd.x ||
+          newPoint.y != root.selectionEnd.y
         ) {
           root.selectionEnd = newPoint;
-          // console.log(selectionEnd);
+          // console.log(root.selectionEnd);
           if (
             root.selectionStart.x === root.selectionEnd.x &&
             root.selectionStart.y === root.selectionEnd.y
@@ -60,9 +60,9 @@ $(function() {
             // Make a new two-point or box selection
             root.area = clearEmptySelections(root.area);
             root.selection = newSelection(root.area, root.selectionStart, root.selectionEnd);
-            root.area = root.area.addOjbect(areaInit(root.selection));
+            root.area = addSubArea(root.area, areaInit(root.selection));
             console.log(root.selection);
-            root.redraw();
+            redraw(root);
           }
 
         }
@@ -81,7 +81,7 @@ $(function() {
     // Parsing the keyboard
     console.log(e.key);
     // Find area object to write new character to
-    var area = root.area.objects[root.selection.index];
+    var area = root.area.subAreas[root.selection.index];
     if (!area) {
       // If not found, write to background object
       area = root.area;
@@ -109,6 +109,6 @@ $(function() {
           break;
       }
     }
-    root.redraw();
+    redraw(root);
   });
 });

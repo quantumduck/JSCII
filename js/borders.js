@@ -1,5 +1,9 @@
 'use strict';
 
+function rectangleInit(selection) {
+  return toRectangle(areaInit(selection));
+}
+
 function toRectangle(area) {
   var rect = area;
   rect.type = 'rectangle';
@@ -12,25 +16,11 @@ function toRectangle(area) {
   rect.corner = function(edgeV, edgeH) {
     return corner(this, edgeV, edgeH);
   };
-  rect.setCorner = function(edgeV, edgeH, pattern) {
-    return setCorner(this, edgeV, edgeH, pattern);
-  };
   rect.borderPattern = function(edge) {
     return borderPattern(this, edge);
   };
-  rect.setBorder = function(edge, pattern) {
-    return setBorder(this, edge, pattern);
-  };
-  rect.resize = function(selection) {
-    return borderResize(this, selection);
-  };
   return rect;
 }
-
-function rectangleInit(selection) {
-  return toRectangle(areaInit(selection));
-}
-
 
 function corner(rect, edgeV, edgeH) {
   var selection = selectAll(rect);
