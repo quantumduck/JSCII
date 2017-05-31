@@ -43,6 +43,9 @@ function areaInit(selection) {
     visiblePoints: function() {
       return visiblePoints(this);
     },
+    isEmpty: function() {
+      return isEmpty(this);
+    },
     move: function(x, y) {
       return moveArea(this, x, y);
     },
@@ -51,10 +54,8 @@ function areaInit(selection) {
     },
     writeChar: function(string, x, y) {
       return writeChar(this, string, x, y);
-    },
-    isEmpty: function() {
-      return isEmpty(this);
     }
+
   };
 }
 

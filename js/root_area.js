@@ -16,8 +16,8 @@ function rootAreaInit(width, height) {
   bg.getObjectIndex = function(x, y) {
     var index = this.objects.length - 1;
     while (index >= 0) {
-      if (this.objects[index].hasPoint(x, y)) {
-        if (this.objects[index].visibleAt(x, y)) {
+      if (hasPoint(this.objects[index], x, y)) {
+        if (visibleAt(this.objects[index], x, y)) {
           return index;
         }
       }
@@ -33,7 +33,7 @@ function rootAreaInit(width, height) {
     }
     output.objects[objInd] = area;
     return output;
-  }
+  };
 
   bg.visibleCharAt = function(x, y) {
     var area = this.objects[this.getObjectIndex(x, y)];
@@ -123,9 +123,23 @@ function rootAreaInit(width, height) {
     return select(this, point1, point2);
   };
 
-  bg.move = function(x, y) {
-    return this;
-  };
-
   return bg;
 }
+
+updateObject = function(objInd, area) {
+  var output = this;
+  if (objInd === -1) {
+    return area;
+  }
+  output.objects[objInd] = area;
+  return output;
+};
+
+deleteObject = function(objInd) {
+  var output = this;
+  if (output.objects[objInd]) {
+    output = output.reorderObject(objInd, 'top');
+    output.objects.pop();
+  }
+  return output;
+};
