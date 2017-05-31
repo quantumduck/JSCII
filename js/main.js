@@ -1,11 +1,11 @@
 $(function() {
-  let selecting = false;
-  let selectionStart = {x: 0, y: 0};
-  let selectionEnd = {x: 0, y: 0};
-  let selection = false;
-  let drawingWidth = 54;
-  let drawingHeight = 31;
-  let drawingArea = rootAreaInit(drawingWidth, drawingHeight);
+  var selecting = false;
+  var selectionStart = {x: 0, y: 0};
+  var selectionEnd = {x: 0, y: 0};
+  var selection = false;
+  var drawingWidth = 54;
+  var drawingHeight = 31;
+  var drawingArea = rootAreaInit(drawingWidth, drawingHeight);
   redraw(drawingArea, selection);
 
   $('#drawing-area').on('click', function(e) {
@@ -31,7 +31,7 @@ $(function() {
         selection = select(drawingArea, selectionStart);
         redraw(drawingArea, selection);
       } else {
-        let newPoint = getXY(e.pageX, e.pageY, drawingWidth, drawingHeight);
+        var newPoint = getXY(e.pageX, e.pageY, drawingWidth, drawingHeight);
         if (
           newPoint.x != selectionEnd.x ||
           newPoint.y != selectionEnd.y
@@ -65,7 +65,7 @@ $(function() {
 
   $(window).on('keydown', function(e) {
     console.log(e.key);
-    let area = drawingArea.objects[selection.index];
+    var area = drawingArea.objects[selection.index];
     if (!area) {
       area = drawingArea;
     }

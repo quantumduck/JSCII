@@ -8,12 +8,12 @@ function selectNewArea(rootarea, point1, point2) {
 
 
 function select(rootarea, point1, point2) {
-  let objInd = rootarea.getObjectIndex(point1.x, point1.y);
-  let area = rootarea.objects[objInd];
+  var objInd = rootarea.getObjectIndex(point1.x, point1.y);
+  var area = rootarea.objects[objInd];
   if (!area) {
     area = rootarea;
   }
-  let selection = area.selectAll();
+  var selection = area.selectAll();
   selection.index = objInd;
   if (objInd < 0) {
     selection.x = point1.x;
@@ -46,7 +46,7 @@ function select(rootarea, point1, point2) {
     return getSelectionTags(area, this, x, y);
   };
   selection.move = function(direction) {
-    let output = this;
+    var output = this;
     switch (direction) {
       case 'ArrowUp':
       if (this.y === this.ymin) {
@@ -82,7 +82,7 @@ function select(rootarea, point1, point2) {
 }
 
 function selectNext(selection) {
-  let output = selection;
+  var output = selection;
   if (selection.x < selection.xmax) {
     output.x++;
   } else {
@@ -92,7 +92,7 @@ function selectNext(selection) {
 }
 
 function selectNextLine(selection) {
-  let output = selection;
+  var output = selection;
   output.x = selection.xmin;
   if (selection.y < selection.ymax) {
     output.y++;
@@ -103,7 +103,7 @@ function selectNextLine(selection) {
 }
 
 function selectPrev(selection) {
-  let output = selection;
+  var output = selection;
   if (selection.x > selection.xmin) {
     output.x--;
   } else {
@@ -118,8 +118,8 @@ function selectPrev(selection) {
 }
 
 function clearEmptySelections(rootarea) {
-  let output = rootarea;
-  let topObject = output.objects[output.objects.length - 1];
+  var output = rootarea;
+  var topObject = output.objects[output.objects.length - 1];
   while (topObject && topObject.isEmpty()) {
     output.objects.pop();
     topObject = output.objects[output.objects.length - 1];
@@ -129,11 +129,11 @@ function clearEmptySelections(rootarea) {
 
 function getSelectionTags(area, selection, x, y) {
         // Many characters selected
-  let tags = ['',''];
-  let xmin = selection.xmin;
-  let ymin = selection.ymin;
-  let xmax = selection.xmax;
-  let ymax = selection.ymax;
+  var tags = ['',''];
+  var xmin = selection.xmin;
+  var ymin = selection.ymin;
+  var xmax = selection.xmax;
+  var ymax = selection.ymax;
   if (area.border) {
     xmin -= area.border.left.width;
     ymin -= area.border.top.height;

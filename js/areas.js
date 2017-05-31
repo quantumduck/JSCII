@@ -17,9 +17,9 @@ var mode = {
 var currentMode = mode.overwrite;
 
 function areaInit(selection) {
-  let width = (selection.xmax - selection.xmin + 1);
-  let height = (selection.ymax - selection.ymin + 1);
-  let content = contentFill(width, height);
+  var width = (selection.xmax - selection.xmin + 1);
+  var height = (selection.ymax - selection.ymin + 1);
+  var content = contentFill(width, height);
   return {
     type: 'basic',
     lines: content,
@@ -70,10 +70,10 @@ function selectAll(area) {
 }
 
 function writeChar(area, string, x, y) {
-  let output = area;
-  let j = y - output.offset.top;
-  let i = x - output.offset.left;
-  let line = output.lines[j];
+  var output = area;
+  var j = y - output.offset.top;
+  var i = x - output.offset.left;
+  var line = output.lines[j];
   output.lines[j] = (
     line.substring(0, i) +
     string[0] +
@@ -86,20 +86,20 @@ function contentFill(width, height, pattern) {
   if (!width || !height) {
     return false;
   }
-  let content = [];
+  var content = [];
   if (pattern) {
-    let xlen = pattern[0].length;
-    let ylen = pattern.length;
-    for (let y = 0; y < height; y++) {
+    var xlen = pattern[0].length;
+    var ylen = pattern.length;
+    for (var y = 0; y < height; y++) {
       content.push('');
-      for (let x = 0; x < width; x++) {
+      for (var x = 0; x < width; x++) {
         content[y] += pattern[y % ylen][x % xlen];
       }
     }
   } else {
-    for (let y = 0; y < height; y++) {
+    for (var y = 0; y < height; y++) {
       content.push('');
-      for (let x = 0; x < width; x++) {
+      for (var x = 0; x < width; x++) {
         content[y] += ' ';
       }
     }
@@ -108,7 +108,7 @@ function contentFill(width, height, pattern) {
 }
 
 function hasPoint(area, x, y) {
-  let region = selectAll(area);
+  var region = selectAll(area);
   return (
     x >= region.xmin &&
     x <= region.xmax &&
@@ -141,13 +141,13 @@ function visibleAt(area, x, y) {
 }
 
 function visiblePoints(area, selection) {
-  let points = [];
-  let region = area.selectAll();
+  var points = [];
+  var region = area.selectAll();
   if (selection) {
     region = selection;
   }
-  for (let y = region.ymin; y <= region.ymax; y++) {
-    for (let x = region.xmin; x <= region.xmax; x++) {
+  for (var y = region.ymin; y <= region.ymax; y++) {
+    for (var x = region.xmin; x <= region.xmax; x++) {
       if (visibleAt(area, x, y)) {
         points.push({x: x, y: y});
       }
@@ -160,7 +160,7 @@ function isEmpty(area) {
   if (area.opaque) {
     return false;
   }
-  let j = 0;
+  var j = 0;
   while (!area.lines[j].trim()) {
     j++;
     if (j >= area.height - 1) {
@@ -171,17 +171,17 @@ function isEmpty(area) {
 }
 
 function moveArea(area, x, y) {
-  let output = area;
+  var output = area;
   output.offset.left += x;
   output.offset.top += y;
   return output;
 }
 
 function subArea(area, selection) {
-  let output = area;
-  let template = areaInit(selection);
-  for (let y = selection.ymin; y <= selection.ymax; y++) {
-    for (let x = selection.xmin; x <= selection.xmax; x++) {
+  var output = area;
+  var template = areaInit(selection);
+  for (var y = selection.ymin; y <= selection.ymax; y++) {
+    for (var x = selection.xmin; x <= selection.xmax; x++) {
       template.lines[y - selection.ymin] = '';
       if (hasPoint(this, x, y)) {
         template.lines[y - selection.ymin] += this.contentAt(x, y);
@@ -198,15 +198,15 @@ function subArea(area, selection) {
 }
 
 function mergeAreas(area1, area2) {
-  let selection = selectAll(area1);
-  let addIn = selectAll(area2);
+  var selection = selectAll(area1);
+  var addIn = selectAll(area2);
   selection.xmin = Math.min(selection.xmin, addIn.xmin);
   selection.ymin = Math.min(selection.ymin, addIn.ymin);
   selection.xmax = Math.max(selection.xmax, addIn.xmax);
   selection.ymax = Math.max(selection.ymax, addIn.ymax);
-  let merge = areaInit(selection);
-  for (let y = selection.ymin; y <= selection.ymax; y++) {
-    for (let x = selection.xmin; x <= selection.xmax; x++) {
+  var merge = areaInit(selection);
+  for (var y = selection.ymin; y <= selection.ymax; y++) {
+    for (var x = selection.xmin; x <= selection.xmax; x++) {
       merge.lines[y - selection.ymin] = '';
       if (visibleAt(this, x, y)) {
         merge.lines[y - selection.ymin] += contentAt(area1, x, y);

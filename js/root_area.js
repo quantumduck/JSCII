@@ -1,7 +1,7 @@
 'use strict';
 
 function rootAreaInit(width, height) {
-  let selection = {
+  var selection = {
     x: 0,
     y: 0,
     xmin: 0,
@@ -9,12 +9,12 @@ function rootAreaInit(width, height) {
     xmax: width - 1,
     ymax: height - 1
   };
-  let bg = areaInit(selection);
+  var bg = areaInit(selection);
   bg.type = 'background';
   bg.objects = [];
 
   bg.getObjectIndex = function(x, y) {
-    let index = this.objects.length - 1;
+    var index = this.objects.length - 1;
     while (index >= 0) {
       if (this.objects[index].hasPoint(x, y)) {
         if (this.objects[index].visibleAt(x, y)) {
@@ -27,7 +27,7 @@ function rootAreaInit(width, height) {
   };
 
   bg.updateObject = function(objInd, area) {
-    let output = this;
+    var output = this;
     if (objInd === -1) {
       return area;
     }
@@ -36,7 +36,7 @@ function rootAreaInit(width, height) {
   }
 
   bg.visibleCharAt = function(x, y) {
-    let area = this.objects[this.getObjectIndex(x, y)];
+    var area = this.objects[this.getObjectIndex(x, y)];
     if (!area) {
       area = this;
     }
@@ -44,18 +44,18 @@ function rootAreaInit(width, height) {
   };
 
   bg.reorderObject = function(objInd, level) {
-    let output = this;
-    let obj = output.objects[objInd];
+    var output = this;
+    var obj = output.objects[objInd];
     if (obj) {
       switch (level) {
         case 'bottom': {
-          for (let i = objInd; i > 0; i--) {
+          for (var i = objInd; i > 0; i--) {
             output = output.reorderObject(i, -1);
           }
           break;
         }
         case 'top': {
-          for (let i = objInd; i < output.objects.length - 1; i++) {
+          for (var i = objInd; i < output.objects.length - 1; i++) {
             output = output.reorderObject(i, 1);
           }
           break;
@@ -74,8 +74,8 @@ function rootAreaInit(width, height) {
   };
 
   bg.copyOject = function(objInd) {
-    let output = this;
-    let obj = output.objects[objInd];
+    var output = this;
+    var obj = output.objects[objInd];
     if (obj) {
       output.objects.push(obj);
     }
@@ -83,8 +83,8 @@ function rootAreaInit(width, height) {
   };
 
   bg.moveObject = function(objInd, x, y) {
-    let output = this;
-    let obj = output.objects[objInd];
+    var output = this;
+    var obj = output.objects[objInd];
     if (obj) {
       obj = obj.move(x, y);
       output.objects[objInd] = obj;
@@ -93,11 +93,11 @@ function rootAreaInit(width, height) {
   };
 
   bg.mergeObject = function(objInd) {
-    let output = this;
-    let obj = output.objects[objInd]
+    var output = this;
+    var obj = output.objects[objInd]
     if (obj) {
-      let top = obj.offset.top;
-      let left = obj.offset.left;
+      var top = obj.offset.top;
+      var left = obj.offset.left;
       output.deleteObject(objInd);
       output.lines = mergeAreas(obj, output).lines;
     }
@@ -105,7 +105,7 @@ function rootAreaInit(width, height) {
   };
 
   bg.deleteObject = function(objInd) {
-    let output = this;
+    var output = this;
     if (output.objects[objInd]) {
       output = output.reorderObject(objInd, 'top');
       output.objects.pop();

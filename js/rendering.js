@@ -1,5 +1,5 @@
 function redraw(rootarea, selection) {
-  let timeout = 5;
+  var timeout = 5;
   // setTimeout(function(rootarea, selection) {
     $('#drawing-area').html(getHTML(rootarea, selection));
     // This line ensures getOffset() works correctly.
@@ -10,14 +10,14 @@ function redraw(rootarea, selection) {
 // The redraw function must be called after every change to ensure
 // the new version is loaded into the browser.
 function getHTML(rootarea, selection) {
-  let newHTML = ""; // will contain the html content of the div
-  for (let y = 0; y < rootarea.height; y++) {
-    for (let x = 0; x < rootarea.width; x++) {
-      let selectionTags = ['',''];
-      let char = rootarea.visibleCharAt(x, y);
+  var newHTML = ""; // will contain the html content of the div
+  for (var y = 0; y < rootarea.height; y++) {
+    for (var x = 0; x < rootarea.width; x++) {
+      var selectionTags = ['',''];
+      var char = rootarea.visibleCharAt(x, y);
       if (selection) {
         selectionTags = selection.getTags(x, y);
-        let area = rootarea.objects[selection.index];
+        var area = rootarea.objects[selection.index];
         if (area && area.visibleAt(x, y)) {
           char = area.contentAt(x, y);
         }

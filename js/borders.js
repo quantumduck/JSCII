@@ -1,7 +1,7 @@
 'use strict';
 
 function toRectangle(area) {
-  let rect = area;
+  var rect = area;
   rect.type = 'rectangle';
   rect.border = {
     top: {height: 0, rep: 1},
@@ -33,8 +33,8 @@ function rectangleInit(selection) {
 
 
 function corner(rect, edgeV, edgeH) {
-  let selection = selectAll(rect);
-  let bor = rect.border
+  var selection = selectAll(rect);
+  var bor = rect.border
   if (bor) {
     if ((bor[edgeH].width > 0) && (bor[edgeV].height > 0)) {
       if (edgeH === 'left') {
@@ -61,8 +61,8 @@ function setCorner(rect, edgeV, edgeH, pattern) {
     pattern.length === rect.lines.length &&
     pattern[0].length === rect.lines[0].length
   ) {
-    let output = rect;
-    let corner = corner(rect, edgeV, edgeH);
+    var output = rect;
+    var corner = corner(rect, edgeV, edgeH);
     corner.lines = pattern;
     output.lines = mergeAreas(corner, output).lines;
     return output;
@@ -71,9 +71,9 @@ function setCorner(rect, edgeV, edgeH, pattern) {
 }
 
 function borderPattern(rect, edge) {
-  let selection = selectAll(rect);
+  var selection = selectAll(rect);
   if (rect.border) {
-    let bor = rect.border;
+    var bor = rect.border;
     if (bor[edge].width > 0) {
       switch (edge) {
         case 'left':
@@ -104,10 +104,10 @@ function borderPattern(rect, edge) {
 }
 
 function setBorder(rect, edge, pattern) {
-  let output = rect;
-  let borderData = {};
+  var output = rect;
+  var borderData = {};
   if (pattern) {
-    let selection = selectAll(rect);
+    var selection = selectAll(rect);
     switch (edge) {
       case 'top': {
         selection.ymax = selection.ymin + pattern.length - 1;
@@ -134,7 +134,7 @@ function setBorder(rect, edge, pattern) {
         break;
       }
     }
-    let border = subArea(rect, selection);
+    var border = subArea(rect, selection);
     border.lines = contentFill(border.width, border.height, pattern);
     border.opaque = true;
     output.lines = mergeAreas(border, rect).lines;
@@ -159,17 +159,17 @@ function setBorder(rect, edge, pattern) {
 }
 
 function borderResize(rect, selection) {
-  let outerSelection = selection;
-  let output = rect;
-  let minHeight = rect.border.top.height + rect.border.bottom.height;
-  let minWidth = rect.border.left.width + rect.border.right.width;
-  let corners = [
+  var outerSelection = selection;
+  var output = rect;
+  var minHeight = rect.border.top.height + rect.border.bottom.height;
+  var minWidth = rect.border.left.width + rect.border.right.width;
+  var corners = [
     {v: 'top', h:'left', pat: corner(rect, 'top', 'left').lines},
     {v: 'top', h:'right', pat: corner(rect, 'top', 'right').lines},
     {v: 'bottom', h:'right', pat: corner(rect, 'bottom', 'right').lines},
     {v: 'bottom', h:'left', pat: corner(rect, 'bottom', 'left').lines}
   ];
-  let edges = [
+  var edges = [
     {edge: 'top', pat: borderPattern(rect, 'top')},
     {edge: 'left', pat: borderPattern(rect, 'left')},
     {edge: 'right', pat: borderPattern(rect, 'right')},
@@ -185,12 +185,12 @@ function borderResize(rect, selection) {
   output.width = output.lines[0].length;
   output.height = output.lines.length;
   output.offset = {left: outerSelection.xmin, top: outerSelection.ymin};
-  for (let i = 0; i < edges.length; i++) {
+  for (var i = 0; i < edges.length; i++) {
     if (edges[i].pat) {
       output = setBorder(output, edges[i].edge, edges[i].pat);
     }
   }
-  for (let i = 0; i < corners.length; i++) {
+  for (var i = 0; i < corners.length; i++) {
     if (corners[i].cor) {
       output = output.setCorner(corners[i].cor.lines, corners[i].v, corners[i].h);
     }
