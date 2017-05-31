@@ -1,11 +1,4 @@
-function redraw(rootarea, selection) {
-  var timeout = 5;
-  // setTimeout(function(rootarea, selection) {
-    $('#drawing-area').html(getHTML(rootarea, selection));
-    // This line ensures getOffset() works correctly.
-    $('body').css('max-width', $('#drawing-container').css('width'));
-  // }, timeout);
-}
+
 
 // The redraw function must be called after every change to ensure
 // the new version is loaded into the browser.

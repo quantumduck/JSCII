@@ -1,6 +1,6 @@
 # JSCII
 
-JSCII is a portmanteau of Javascript (JS) and the American Standard Code for Information Interchange (ASCII). I guess we could call it JavaScript Code for Information Interchange or JavaScript Code for Interesting Images, since this is more related to drawing.
+JSCII is a portmanteau of Javascript (JS) and the American Standard Code for Information Interchange (ASCII). I guess we could call it JavaScript Code for Information Interchange or JavaScript Code for Interesting Images, since this is a drawing program.
 
 ## Description
 

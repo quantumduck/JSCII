@@ -104,6 +104,12 @@ function rootAreaInit(width, height) {
     return output;
   };
 
+  bg.addObject = function(obj) {
+    var output = this;
+    output.objects.push(obj);
+    return output;
+  };
+
   bg.deleteObject = function(objInd) {
     var output = this;
     if (output.objects[objInd]) {
