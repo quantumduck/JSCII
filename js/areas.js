@@ -45,17 +45,7 @@ function areaInit(selection) {
     },
     isEmpty: function() {
       return isEmpty(this);
-    },
-    move: function(x, y) {
-      return moveArea(this, x, y);
-    },
-    resize: function(selection) {
-      return subArea(this, selection);
-    },
-    writeChar: function(string, x, y) {
-      return writeChar(this, string, x, y);
     }
-
   };
 }
 
@@ -179,6 +169,7 @@ function moveArea(area, x, y) {
 }
 
 function subArea(area, selection) {
+  // creates a smaller area from a selection
   var output = area;
   var template = areaInit(selection);
   for (var y = selection.ymin; y <= selection.ymax; y++) {
@@ -199,6 +190,8 @@ function subArea(area, selection) {
 }
 
 function mergeAreas(area1, area2) {
+  // Makes an area encompassing area1 and area2, containing the merged contents
+  // area2 has priority over area1
   var selection = selectAll(area1);
   var addIn = selectAll(area2);
   selection.xmin = Math.min(selection.xmin, addIn.xmin);
@@ -209,10 +202,10 @@ function mergeAreas(area1, area2) {
   for (var y = selection.ymin; y <= selection.ymax; y++) {
     for (var x = selection.xmin; x <= selection.xmax; x++) {
       merge.lines[y - selection.ymin] = '';
-      if (visibleAt(this, x, y)) {
-        merge.lines[y - selection.ymin] += contentAt(area1, x, y);
-      } else if (visibleAt(otherArea, x, y)) {
+      if (area2.visibleAt(x, y)) {
         merge.lines[y - selection.ymin] += contentAt(area2, x, y);
+      } else if (area1.visibleAt(x, y)) {
+        merge.lines[y - selection.ymin] += contentAt(area1, x, y);
       } else {
         merge.lines[y - selection.ymin] += ' ';
       }

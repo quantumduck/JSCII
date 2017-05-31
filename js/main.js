@@ -10,11 +10,6 @@ $(function() {
     width: 54, // Width of drawing area (in chars)
     height: 31, // Height of drawing area (in chars)
     area: rootAreaInit(54, 31), // Drawing area
-    redraw: function() {
-      $('#drawing-area').html(getHTML(this.area, this.selection));
-      // This line ensures getOffset() works correctly.
-      $('body').css('max-width', $('#drawing-container').css('width'));
-    }
   };
   root.redraw(); // Write Drawing area object to DOM
 
@@ -23,7 +18,7 @@ $(function() {
     root.selectionStart = getXY(e.pageX, e.pageY, root.width, root.height);
     if(root.area.hasPoint(root.selectionStart.x, root.selectionStart.y)) {
       console.log(root.selectionStart);
-      root.selection = select(root.area, root.selectionStart);
+      root.selection = newSelection(root.area, root.selectionStart);
       root.redraw();
     } else {
       // Keep track of bad click events...
@@ -43,7 +38,7 @@ $(function() {
         root.selectionStart = getXY(e.pageX, e.pageY, root.width, root.height);
         root.selectionEnd = root.selectionStart;
         root.area = clearEmptySelections(root.area);
-        root.selection = select(root.area, root.selectionStart);
+        root.selection = newSelection(root.area, root.selectionStart);
         root.redraw();
       } else {
         // Resize current selection
@@ -60,11 +55,11 @@ $(function() {
           ) {
             // Make a new one-point selection
             root.area = clearEmptySelections(root.area);
-            root.selection = select(root.area, root.selectionStart);
+            root.selection = newSelection(root.area, root.selectionStart);
           } else {
             // Make a new two-point or box selection
             root.area = clearEmptySelections(root.area);
-            root.selection = select(root.area, root.selectionStart, root.selectionEnd);
+            root.selection = newSelection(root.area, root.selectionStart, root.selectionEnd);
             root.area = root.area.addOjbect(areaInit(root.selection));
             console.log(root.selection);
             root.redraw();
@@ -93,24 +88,24 @@ $(function() {
     }
     if (safeChar(e.key)) {
       // console.log([selection.x, selection.y]);
-      area = area.writeChar(e.key, root.selection.x, root.selection.y);
-      root.area = root.area.updateObject(root.selection.index, area);
-      root.selection = root.selection.forward();
+      area = writeChar(area, e.key, root.selection.x, root.selection.y);
+      root.area = updateSubArea(root.area, root.selection.index, area);
+      root.selection = cursorNext(root.selection);
     } else {
       switch (e.key) {
         case 'Enter':
-          root.selection = root.selection.enter();
+          root.selection = cursorNextLine(root.selection);
           break;
         case 'Backspace':
-          root.selection = root.selection.back();
-          area = area.writeChar(' ', root.selection.x, root.selection.y);
-          root.area = root.area.updateObject(root.selection.index, area);
+          root.selection = cursorPrev(root.selection);
+          area = writeChar(area, ' ', root.selection.x, root.selection.y);
+          root.area = updateSubArea(root.area, root.selection.index, area);
           break;
         case 'ArrowUp':
         case 'ArrowDown':
         case 'ArrowLeft':
         case 'ArrowRight':
-          root.selection = root.selection.move(e.key);
+          root.selection = moveCursor(root.selection, e.key);
           break;
       }
     }

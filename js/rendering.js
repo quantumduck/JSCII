@@ -1,21 +1,28 @@
-
-
 // The redraw function must be called after every change to ensure
 // the new version is loaded into the browser.
+
+function redraw(rootObject) {
+  $('#drawing-area').html(getHTML(rootObject.area, rootObject.selection));
+  // This line ensures getOffset() works correctly.
+  $('body').css('max-width', $('#drawing-container').css('width'));
+}
+
 function getHTML(rootarea, selection) {
+  // Generate the HTML for rendering an area with a given selection
   var newHTML = ""; // will contain the html content of the div
   for (var y = 0; y < rootarea.height; y++) {
     for (var x = 0; x < rootarea.width; x++) {
       var selectionTags = ['',''];
       var char = rootarea.visibleCharAt(x, y);
+      // Get selection tags only if selection is provided
       if (selection) {
         selectionTags = selection.getTags(x, y);
-        var area = rootarea.objects[selection.index];
+        var area = rootarea.subAreas[selection.index];
         if (area && area.visibleAt(x, y)) {
+          // If area is selected, all its contents are visible
           char = area.contentAt(x, y);
         }
       }
-
       // Iterate through the drawing area:
       // Handle selected areas with <span> tags:
       if (selectionTags[0]) {
@@ -52,12 +59,6 @@ function getHTML(rootarea, selection) {
   }
   return newHTML;
 }
-  // Insert the new HTML code into the DOM
-  // $('#drawing-area').html(newHTML);
-  // This line ensures getOffset works correctly.
-  // $('body').css('max-width', $('#drawing-container').css('width'));
-
-
 
 // Get offset of drawing-area in pixels
 function getOffset() {
@@ -103,7 +104,7 @@ function numFromPixels(string) {
 // overwrite the character at the specified x and y indices.
 function safeChar(char) {
   if (
-    // Do not insert control characters.
+    // Do not insert control characters or special key names
     (char.length != 1) ||
     (char.charCodeAt(0) < 32) ||
     ((char.charCodeAt(0) >= 127) && (char.charCodeAt(0) <= 159))

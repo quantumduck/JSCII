@@ -1,13 +1,6 @@
 'use strict';
 
-function selectNewArea(rootarea, point1, point2) {
-  return {
-
-  }
-}
-
-
-function select(rootarea, point1, point2) {
+function newSelection(rootarea, point1, point2) {
   var objInd = rootarea.getObjectIndex(point1.x, point1.y);
   var area = rootarea.objects[objInd];
   if (!area) {
@@ -33,65 +26,57 @@ function select(rootarea, point1, point2) {
     selection.xmax -= area.border.right.width;
     selection.ymax -= area.border.bottom.height;
   }
-  selection.forward = function() {
-    return selectNext(this);
-  };
-  selection.back = function() {
-    return selectPrev(selection);
-  };
-  selection.enter = function() {
-    return selectNextLine(this);
-  };
   selection.getTags = function(x, y) {
     return getSelectionTags(area, this, x, y);
-  };
-  selection.move = function(direction) {
-    var output = this;
-    switch (direction) {
-      case 'ArrowUp':
-      if (this.y === this.ymin) {
-        output.y = this.ymax;
-      } else {
-        output.y--;
-      }
-      break;
-      case 'ArrowDown':
-      if (this.y === this.ymax) {
-        output.y = this.ymin;
-      } else {
-        output.y++;
-      }
-      break;
-      case 'ArrowLeft':
-      if (this.x === this.xmin) {
-        output.x = this.xmax;
-      } else {
-        output.x--;
-      }
-      break;
-      case 'ArrowRight':
-      if (this.x === this.xmax) {
-        output.x = this.xmin;
-      } else {
-        output.x++;
-      }
-    }
-    return output;
   };
   return selection;
 }
 
-function selectNext(selection) {
+function moveCursor(selection, direction) {
   var output = selection;
-  if (selection.x < selection.xmax) {
-    output.x++;
-  } else {
-    output = selectNextLine(output);
+  switch (direction) {
+    case 'ArrowUp':
+    if (selection.y <= selection.ymin) {
+      output.y = selection.ymax;
+    } else {
+      output.y--;
+    }
+    break;
+    case 'ArrowDown':
+    if (selection.y >= selection.ymax) {
+      output.y = selection.ymin;
+    } else {
+      output.y++;
+    }
+    break;
+    case 'ArrowLeft':
+    if (selection.x <= selection.xmin) {
+      output.x = selection.xmax;
+    } else {
+      output.x--;
+    }
+    break;
+    case 'ArrowRight':
+    if (selection.x >= selection.xmax) {
+      output.x = selection.xmin;
+    } else {
+      output.x++;
+    }
   }
   return output;
 }
 
-function selectNextLine(selection) {
+function cursorNext(selection) {
+  var output = selection;
+  if (selection.x < selection.xmax) {
+    output.x++;
+  } else {
+    output = cursorNextLine(output);
+  }
+  return output;
+}
+
+function cursorNextLine(selection) {
   var output = selection;
   output.x = selection.xmin;
   if (selection.y < selection.ymax) {
@@ -102,7 +87,7 @@ function selectNextLine(selection) {
   return output;
 }
 
-function selectPrev(selection) {
+function cursorPrev(selection) {
   var output = selection;
   if (selection.x > selection.xmin) {
     output.x--;
