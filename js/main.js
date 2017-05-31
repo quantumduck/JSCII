@@ -2,7 +2,20 @@ $(function() {
   //  For ease of programming, There is only one global object: root
   // root has one method: redraw, which assigns its contents to the DOM
   // None of the methods on root or its children change the object itself.
+  var MODE = {
+    overwrite: 0,
+    insert: 1,
+    select: 2,
+    move: 3,
+    resize: 4,
+    box: 5,
+    line: 6,
+    arrow: 7,
+    freeform: 8
+  }
+
   var root = {
+    mode: MODE.select,
     selecting: false, // Is mouse being moved with left button down?
     selectionStart: {x: 0, y: 0}, // Start of current selection
     selectionEnd: {x: 0, y: 0}, // End of current selection

@@ -1,21 +1,5 @@
 'use strict';
 
-var numAreas = 0;
-
-var mode = {
-  overwrite: 0,
-  insert: 1,
-  select: 2,
-  move: 3,
-  resize: 4,
-  box: 5,
-  line: 6,
-  arrow: 7,
-  freeform: 8
-}
-
-var currentMode = mode.overwrite;
-
 function areaInit(selection) {
   var width = (selection.xmax - selection.xmin + 1);
   var height = (selection.ymax - selection.ymin + 1);
