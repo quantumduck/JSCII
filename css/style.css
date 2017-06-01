@@ -71,8 +71,12 @@ body {
   cursor: e-resize;
 }
 
+.unselected {
+  background-color: #dddddd;
+}
+
 .selected {
-  background-color: #bbbbff;
+  background-color: #ddddff;
 }
 
 .cursor-overwrite {

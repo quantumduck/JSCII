@@ -12,11 +12,11 @@ function getHTML(rootarea, selection) {
   var newHTML = ""; // will contain the html content of the div
   for (var y = 0; y < rootarea.height; y++) {
     for (var x = 0; x < rootarea.width; x++) {
-      var selectionTags = ['',''];
+      var classname = false;
       var char = rootarea.visibleCharAt(x, y);
-      // Get selection tags only if selection is provided
+      // If a selection is provided, assign a class name:
       if (selection) {
-        selectionTags = selection.getTags(x, y);
+        classname = selection.getLocationClass(x, y);
         var area = rootarea.subAreas[selection.index];
         if (area && area.visibleAt(x, y)) {
           // If area is selected, all its contents are visible
@@ -25,8 +25,10 @@ function getHTML(rootarea, selection) {
       }
       // Iterate through the drawing area:
       // Handle selected areas with <span> tags:
-      if (selectionTags[0]) {
-        newHTML += selectionTags[0];
+      if (x === 0 && classname) {
+        newHTML += '<span class="' + classname + '">';
+      } else if (classname && selection.getLocationClass(x - 1, y) != classname) {
+        newHTML += '</span><span class="' + classname + '">';
       }
       // Escape HTML characters:
       switch (char) {
@@ -48,8 +50,10 @@ function getHTML(rootarea, selection) {
         break;
       }
       // Put in the closing tags if present
-      if (selectionTags[1]) {
-        newHTML += selectionTags[1];
+      if (classname && x ==== rootarea.width - 1) {
+        newHTML += '</span>';
+      } else if (classname && selection.getLocationClass(x + 1, y) != classname) {
+        newHTML += '</span>';
       }
     }
     // Put line breaks on all but the last one.

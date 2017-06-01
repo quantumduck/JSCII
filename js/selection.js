@@ -11,10 +11,7 @@ function newAreaSelection(rootArea, point1, point2) {
     index: rootarea.subAreas.length
   };
   var area = areaInit(selection);
-  selection.getTags = function(x, y) {
-    return getSelectionTags(area, this, x, y);
-  };
-  selection.getLocation = function(x, y) {
+  selection.getLocationClass = function(x, y) {
     return getLocationClass(area, this, x, y);
   };
   return [area, selection];
@@ -46,10 +43,7 @@ function newSelection(rootarea, point) {
       selection.y = selection.ymax;
     }
   }
-  selection.getTags = function(x, y) {
-    return getSelectionTags(area, this, x, y);
-  };
-  selection.getLocation = function(x, y) {
+  selection.getLocationClass = function(x, y) {
     return getLocationClass(area, this, x, y);
   };
   return selection;
@@ -135,81 +129,24 @@ function clearEmptySelections(rootarea) {
   return output;
 }
 
-function getSelectionTags(area, selection, x, y) {
-        // Many characters selected
-  var tags = ['',''];
-  var xmin = selection.xmin;
-  var ymin = selection.ymin;
-  var xmax = selection.xmax;
-  var ymax = selection.ymax;
-  if (area.border) {
-    xmin -= area.border.left.width;
-    ymin -= area.border.top.height;
-    xmax += area.border.right.width;
-    ymax += area.border.bottom.height;
-  }
-  // Mark the edges of the selection if they exist:
-  if (y === ymin - 1) {
-    if (x === xmin - 1) {
-      tags = ['<span class="top-left">', '</span>'];
-    } else if (x === xmax + 1) {
-      tags = ['<span class="top-right">', '</span>'];
-    } else if (x === xmin) {
-      tags[0] = '<span class="top-edge">';
-    } else if (x === xmax) {
-      tags[1] = '</span>';
-    }
-  } else if (y === ymax + 1) {
-    if (x === xmin - 1) {
-      tags = ['<span class="bottom-left">', '</span>'];
-    } else if (x === xmax + 1) {
-      tags = ['<span class="bottom-right">', '</span>'];
-    } else if (x === xmin) {
-      tags[0] = '<span class="bottom-edge">';
-    } else if (x === xmax) {
-      tags[1] = '</span>';
-    }
-  } else if (x === xmin - 1) {
-    tags = ['<span class="left-edge">', '</span>'];
-  } else if (x === xmax + 1) {
-    tags = ['<span class="right-edge">', '</span>'];
-  }
-  // Mark the selection itself:
-  if ((y >= ymin) && (y <= ymax)) {
-    if (x === xmin) {
-      tags[0] = '<span class="selected">';
-    }
-    // Mark the selection cursor:
-    if ((x === selection.x) && (y === selection.y)) {
-      tags[0] += '</span><span class="cursor">';
-      tags[1] = '</span><span class="selected">';
-    }
-    if (x === selection.xmax) {
-      tags[1] += '</span>';
-    }
-  }
-  return tags;
-}
-
 function getLocationClass(area, selection, x, y) {
   // Default is "unselected"
-  var classname = "unselected";
+  var classname = "";
   var xmin = selection.xmin;
   var ymin = selection.ymin;
   var xmax = selection.xmax;
   var ymax = selection.ymax;
+  var left = xmin - 1;
+  var top = ymin - 1;
+  var right = xmax + 1;
+  var bottom = ymax + 1;
   if (area.border) {
     left = xmin - area.border.left.width;
     top = ymin - area.border.top.height;
     right = xmax + area.border.right.width;
     bottom = ymax + area.border.bottom.height;
-  } else {
-    left = xmin - 1;
-    top = ymin - 1;
-    right = xmax + 1;
-    bottom = ymax + 1;
   }
-
+  // Mark the cursor:
   if ((x === selection.x) && (y === selection.y)) {
     // Mark the cursor iteslf:
     if (area.visibleAt(x, y) && area.contentAt(x, y) != ' ') {
@@ -217,30 +154,43 @@ function getLocationClass(area, selection, x, y) {
     } else {
       classname = "cursor";
     }
-  } else if ((y >= ymin) && (y <= ymax)) {
-    classname = "selected";
-  } else if (y < ymin && y >= top) {
+  }
+  // Mark the border for bordered areas or the edge:
+  if (y < ymin && y >= top) {
     // Mark the top border:
     if (x < xmin && x >= left) {
-      classname = "top-left";
+      classname += "top-left";
     } else if (x > xmax && x <= right) {
-      classname = "top-right";
+      classname += "top-right";
     } else {
-      classname = "top-edge";
+      classname += "top-edge";
     }
   } else if (y > ymax && y <= bottom) {
     // Mark the bottom border
     if (x < xmin && x >= left) {
-      classname = "bottom-left";
+      classname += "bottom-left";
     } else if (x > xmax && x <= right) {
-      classname = "bottom-right";
+      classname += "bottom-right";
     } else {
-      classname = "bottom-edge";
+      classname += "bottom-edge";
     }
   } else if (x < xmin && x >= left) {
-    classname = "left-edge";
+    classname += "left-edge";
   } else if (x > xmax && x <= right) {
-    classname = "right-edge";
+    classname += "right-edge";
   }
-  return classname;
+  // Mark the selection:
+  if ((y >= ymin) && (y <= ymax) && (x >= xmin) && (x <= xmax)) {
+    classname = "selected";
+  } else if (area.border) {
+    // For bordered areas, include the border in the selection.
+    if ((y >= top) && (y <= bottom) && (x >= left) && (x <= right)) {
+      classname += " selected";
+    }
+  }
+  if (classname === "") {
+    return "unselected";
+  } else {
+    return classname;
+  }
 }
