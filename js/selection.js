@@ -1,23 +1,30 @@
 'use strict';
 
-function newAreaSelection(rootArea, point1, point2) {
-  var selection = {
-    x: point1.x,
-    y: point1.y,
-    xmin: Math.min(point1.x, point2.x),
-    xmax: Math.max(point1.x, point2.x),
-    ymin: Math.min(point1.y, point2.y),
-    ymax: Math.max(point1.y, point2.y),
-    index: rootarea.subAreas.length
-  };
-  var area = areaInit(selection);
-  selection.getLocationClass = function(x, y) {
-    return getLocationClass(area, this, x, y);
-  };
-  return [area, selection];
+function newAreaSelection(rootarea, point1, point2) {
+  if ((point1.x === point2.x) && (point1.y === point2.y)) {
+    var index = rootarea.getSubAreaIndex(point.x, point.y);
+    if (index >= 0) {
+      return [rootarea.subAreas[index], objectSelection(rootarea, point1)];
+    }
+  } else {
+    var selection = {
+      x: point1.x,
+      y: point1.y,
+      xmin: Math.min(point1.x, point2.x),
+      xmax: Math.max(point1.x, point2.x),
+      ymin: Math.min(point1.y, point2.y),
+      ymax: Math.max(point1.y, point2.y),
+      index: rootarea.subAreas.length
+    };
+    var area = areaInit(selection);
+    selection.getLocationClass = function(x, y) {
+      return getLocationClass(area, this, x, y);
+    };
+    return [area, selection];
+  }
 }
 
-function newSelection(rootarea, point) {
+function objectSelection(rootarea, point) {
   var index = rootarea.getSubAreaIndex(point.x, point.y);
   var area = rootarea.subAreas[index];
   if (!area) {
