@@ -39,6 +39,38 @@ body {
   background-color: #FFF;
 }
 
+.top-left {
+  cursor: nw-resize;
+}
+
+.top-right {
+  cursor: ne-resize;
+}
+
+.bottom-left {
+  cursor: sw-resize;
+}
+
+.bottom-right {
+  cursor: se-resize;
+}
+
+.top-edge {
+  cursor: n-resize;
+}
+
+.bottom-edge {
+  cursor: s-resize;
+}
+
+.left-edge {
+  cursor: w-resize;
+}
+
+.right-edge {
+  cursor: e-resize;
+}
+
 .selected {
   background-color: #bbbbff;
 }

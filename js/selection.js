@@ -125,13 +125,39 @@ function getSelectionTags(area, selection, x, y) {
     xmax += area.border.right.width;
     ymax += area.border.bottom.height;
   }
+  // Mark the edges of the selection if they exist:
+  if (y === ymin - 1) {
+    if (x === xmin - 1) {
+      tags = ['<span class="top-left">', '</span>'];
+    } else if (x === xmax + 1) {
+      tags = ['<span class="top-right">', '</span>'];
+    } else if (x === xmin) {
+      tags[0] = '<span class="top-edge">';
+    } else if (x === xmax) {
+      tags[1] = '</span>';
+    }
+  } else if (y === ymax + 1) {
+    if (x === xmin - 1) {
+      tags = ['<span class="bottom-left">', '</span>'];
+    } else if (x === xmax + 1) {
+      tags = ['<span class="bottom-right">', '</span>'];
+    } else if (x === xmin) {
+      tags[0] = '<span class="bottom-edge">';
+    } else if (x === xmax) {
+      tags[1] = '</span>';
+    }
+  } else if (x === xmin - 1) {
+    tags = ['<span class="left-edge">', '</span>'];
+  } else if (x === xmax + 1) {
+    tags = ['<span class="right-edge">', '</span>'];
+  }
+  // Mark the selection itself:
   if ((y >= ymin) && (y <= ymax)) {
     if (x === xmin) {
       tags[0] = '<span class="selected">';
     }
+    // Mark the selection cursor:
     if ((x === selection.x) && (y === selection.y)) {
-            // The x and y coordinates of the selection get
-            // different formatting
       tags[0] += '</span><span class="cursor">';
       tags[1] = '</span><span class="selected">';
     }

@@ -4,7 +4,7 @@ $(function() {
   // None of the methods on root or its children change the object itself.
   var root = {
     overwrite: false,
-    mode = 'text',
+    mode: 'text',
     selecting: false, // Is mouse being moved with left button down?
     selectionStart: {x: 0, y: 0}, // Start of current selection
     selectionEnd: {x: 0, y: 0}, // End of current selection
@@ -36,7 +36,7 @@ $(function() {
 
     switch (root.mode) {
       case 'text': {
-        root.selection = changeSelection(e);
+        root.selection = drawSelection(e);
       }
     }
 
