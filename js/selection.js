@@ -1,33 +1,56 @@
 'use strict';
 
-function newSelection(rootarea, point1, point2) {
-  var index = rootarea.getSubAreaIndex(point1.x, point1.y);
+function newAreaSelection(rootArea, point1, point2) {
+  var selection = {
+    x: point1.x,
+    y: point1.y,
+    xmin: Math.min(point1.x, point2.x),
+    xmax: Math.max(point1.x, point2.x),
+    ymin: Math.min(point1.y, point2.y),
+    ymax: Math.max(point1.y, point2.y),
+    index: rootarea.subAreas.length
+  };
+  var area = areaInit(selection);
+  selection.getTags = function(x, y) {
+    return getSelectionTags(area, this, x, y);
+  };
+  selection.getLocation = function(x, y) {
+    return getLocationClass(area, this, x, y);
+  };
+  return [area, selection];
+}
+
+function newSelection(rootarea, point) {
+  var index = rootarea.getSubAreaIndex(point.x, point.y);
   var area = rootarea.subAreas[index];
   if (!area) {
-    area = rootarea;
+    return false;
   }
   var selection = area.selectAll();
   selection.index = index;
-  if (index < 0) {
-    selection.x = point1.x;
-    selection.y = point1.y;
-  }
-  if (point2) {
-    selection.xmin = Math.min(point1.x, point2.x);
-    selection.xmax = Math.max(point1.x, point2.x);
-    selection.ymin = Math.min(point1.y, point2.y);
-    selection.ymax = Math.max(point1.y, point2.y);
-    selection.index = rootarea.subAreas.length;
-  } else if (area.border) {
-    selection.x += area.border.left.width;
-    selection.y += area.border.top.height;
+  selection.x = point.x;
+  selection.y = point.y;
+  if (area.border) {
     selection.xmin += area.border.left.width;
     selection.ymin += area.border.top.height;
     selection.xmax -= area.border.right.width;
     selection.ymax -= area.border.bottom.height;
+    if (selection.x < selection.xmin) {
+      selection.x = selection.xmin;
+    } else if (selection.x > selection.xmax) {
+      selection.x = selection.xmax;
+    }
+    if (selection.y < selection.ymin) {
+      selection.y = selection.ymin;
+    } else if (selection.y > selection.ymax) {
+      selection.y = selection.ymax;
+    }
   }
   selection.getTags = function(x, y) {
     return getSelectionTags(area, this, x, y);
+  };
+  selection.getLocation = function(x, y) {
+    return getLocationClass(area, this, x, y);
   };
   return selection;
 }
@@ -166,4 +189,58 @@ function getSelectionTags(area, selection, x, y) {
     }
   }
   return tags;
+}
+
+function getLocationClass(area, selection, x, y) {
+  // Default is "unselected"
+  var classname = "unselected";
+  var xmin = selection.xmin;
+  var ymin = selection.ymin;
+  var xmax = selection.xmax;
+  var ymax = selection.ymax;
+  if (area.border) {
+    left = xmin - area.border.left.width;
+    top = ymin - area.border.top.height;
+    right = xmax + area.border.right.width;
+    bottom = ymax + area.border.bottom.height;
+  } else {
+    left = xmin - 1;
+    top = ymin - 1;
+    right = xmax + 1;
+    bottom = ymax + 1;
+  }
+
+  if ((x === selection.x) && (y === selection.y)) {
+    // Mark the cursor iteslf:
+    if (area.visibleAt(x, y) && area.contentAt(x, y) != ' ') {
+      classname = "cursor-overwrite";
+    } else {
+      classname = "cursor";
+    }
+  } else if ((y >= ymin) && (y <= ymax)) {
+    classname = "selected";
+  } else if (y < ymin && y >= top) {
+    // Mark the top border:
+    if (x < xmin && x >= left) {
+      classname = "top-left";
+    } else if (x > xmax && x <= right) {
+      classname = "top-right";
+    } else {
+      classname = "top-edge";
+    }
+  } else if (y > ymax && y <= bottom) {
+    // Mark the bottom border
+    if (x < xmin && x >= left) {
+      classname = "bottom-left";
+    } else if (x > xmax && x <= right) {
+      classname = "bottom-right";
+    } else {
+      classname = "bottom-edge";
+    }
+  } else if (x < xmin && x >= left) {
+    classname = "left-edge";
+  } else if (x > xmax && x <= right) {
+    classname = "right-edge";
+  }
+  return classname;
 }

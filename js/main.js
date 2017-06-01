@@ -33,13 +33,14 @@ $(function() {
   $('#drawing-area').on('mousemove', function(e) {
     // When in select mode, redraw the selection when the mouse moves
     // (only when left button is held down)
-
-    switch (root.mode) {
-      case 'text': {
-        root.selection = drawSelection(e);
+    if (e.buttons === 1) {
+      var point = getXY(e.pageX, e.pageY, root.width, root.height);
+      switch (root.mode) {
+        case 'text': {
+          root.selection = drawSelection(point);
+        }
       }
     }
-
   });
 
   $('#drawing-area').on('mouseup', function(e) {
