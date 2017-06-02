@@ -50,7 +50,7 @@ function getHTML(rootarea, selection) {
         break;
       }
       // Put in the closing tags if present
-      if (classname && x ==== rootarea.width - 1) {
+      if (classname && x === rootarea.width - 1) {
         newHTML += '</span>';
       } else if (classname && selection.getLocationClass(x + 1, y) != classname) {
         newHTML += '</span>';

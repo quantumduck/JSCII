@@ -17,14 +17,14 @@ $(function() {
 
   $('#drawing-area').on('click', function(e) {
     // When in select mode, remember point clicked and select that point
-    root.startPoint = getXY(e.pageX, e.pageY, root.width, root.height);
-    if(root.area.hasPoint(root.startPoint.x, root.startPoint.y)) {
-      console.log(root.startPoint);
-      root.selection = newSelection(root.area, root.startPoint);
+    var point = getXY(e.pageX, e.pageY, root.width, root.height);
+    if(root.area.hasPoint(point.x, point.y)) {
+      console.log(point);
+      root.selection = newAreaSelection(root.area, point, point);
       redraw(root);
     } else {
       // Keep track of bad click events...
-      console.log(root.startPoint);
+      console.log(point);
       console.log([e.pageX, e.pageY])
     }
 
@@ -113,7 +113,7 @@ $(function() {
 
 function drawSelection(start, point, end) {
   if ((start.x === point.x) && (start.y === point.y) &&
-      (end.x === point.x && (end.y === point.y)) {
+      (end.x === point.x) && (end.y === point.y)) {
     // Start a new selection
     return newSelection(root.area, point);
   } else {

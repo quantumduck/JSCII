@@ -57,6 +57,63 @@ function writeChar(area, string, x, y) {
   return output;
 }
 
+function insertChar(area, string, x, y, direction) {
+  var output = area;
+  var i = x - area.offset.left;
+  var j = y - area.offset.top;
+  switch(direction) {
+    case "left":
+    var line = area.lines[j];
+      if ((line[0] != ' ') || (i === 0)) {
+        i++;
+        output.offset.left--;
+        output.width++;
+        // push left edge of content:
+        for (var k = 0; k < area.lines.length; k++) {
+          output.lines[k] = ' ' + output.lines[k];
+        }
+      }
+      output.lines[j] = line.substring(1,i) + string[0] + line.substring(i, line.length);
+      break;
+    case "up":
+      if ((area.lines[0][i] != ' ') || (j === 0)) {
+        j++;
+        output.offset.top--;
+        output.height++;
+        // push top edge of content:
+        output.lines.unshift(contentFill(area.width, 1)[0]);
+      }
+      for (var k = 0; k < j; k++) {
+        output = writeChar(output, area.lines[k+1][i], x, y - j + k);
+      }
+      output = writeChar(output, string, x, y);
+      break;
+    case "down":
+      if ((area.lines[area.height - 1][i] != ' ') || (j === area.height - 1)) {
+        output.height++;
+        // push top edge of content:
+        output.lines.push(contentFill(area.width, 1)[0]);
+      }
+      for (var k = j + 1; k < output.height; k++) {
+        output = writeChar(output, area.lines[k-1][i], x, y - j + k);
+      }
+      output = writeChar(output, string, x, y);
+      break;
+    default:
+      var line = area.lines[j];
+      if ((line[0] != ' ') || (i === line.length - 1)) {
+        output.width++;
+        // push left edge of content:
+        for (var k = 0; k < area.lines.length; k++) {
+          output.lines[k] =  output.lines[k] + ' ';
+        }
+      }
+      output.lines[j] = line.substring(0,i) + string[0] + line.substring(i, line.length);
+      break;
+  }
+  return output;
+}
+
 function contentFill(width, height, pattern) {
   if (!width || !height) {
     return false;
