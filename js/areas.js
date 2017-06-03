@@ -59,40 +59,37 @@ function writeChar(area, string, x, y) {
 
 function insertChar(area, string, x, y, direction) {
   var output = area;
+  var selection = area.selectAll();
   var i = x - area.offset.left;
   var j = y - area.offset.top;
   switch(direction) {
     case "left":
     var line = area.lines[j];
       if ((line[0] != ' ') || (i === 0)) {
+        selection.xmin--;
+        output = areaInit(selection);
+        output = mergeAreas(output, area);
+        line = output.lines[j];
         i++;
-        output.offset.left--;
-        output.width++;
-        // push left edge of content:
-        for (var k = 0; k < area.lines.length; k++) {
-          output.lines[k] = ' ' + output.lines[k];
-        }
       }
-      output.lines[j] = line.substring(1,i) + string[0] + line.substring(i, line.length);
+      output.lines[j] = line.substring(1,i + 1) + string[0] + line.substring(i + 1, line.length);
       break;
     case "up":
       if ((area.lines[0][i] != ' ') || (j === 0)) {
-        j++;
-        output.offset.top--;
-        output.height++;
-        // push top edge of content:
-        output.lines.unshift(contentFill(area.width, 1)[0]);
+        selection.ymin--;
+        output = areaInit(selection);
+        output = mergeAreas(output, area);
       }
       for (var k = 0; k < j; k++) {
-        output = writeChar(output, area.lines[k+1][i], x, y - j + k);
+        output = writeChar(output, output.lines[k+1][i], x, y - j + k);
       }
       output = writeChar(output, string, x, y);
       break;
     case "down":
       if ((area.lines[area.height - 1][i] != ' ') || (j === area.height - 1)) {
-        output.height++;
-        // push top edge of content:
-        output.lines.push(contentFill(area.width, 1)[0]);
+        selection.ymax++;
+        output = areaInit(selection);
+        output = mergeAreas(output, area);
       }
       for (var k = j + 1; k < output.height; k++) {
         output = writeChar(output, area.lines[k-1][i], x, y - j + k);
@@ -102,13 +99,13 @@ function insertChar(area, string, x, y, direction) {
     default:
       var line = area.lines[j];
       if ((line[0] != ' ') || (i === line.length - 1)) {
-        output.width++;
-        // push left edge of content:
-        for (var k = 0; k < area.lines.length; k++) {
-          output.lines[k] =  output.lines[k] + ' ';
-        }
+        selection.xmax++;
+        output = areaInit(selection);
+        output = mergeAreas(output, area);
+        line = output.lines[j];
+        i++;
       }
-      output.lines[j] = line.substring(0,i) + string[0] + line.substring(i, line.length);
+      output.lines[j] = line.substring(0,i) + string[0] + line.substring(i, line.length - 1);
       break;
   }
   return output;
