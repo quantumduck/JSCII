@@ -1,21 +1,70 @@
+var root = {
+  text: {
+    direction: "right",
+    lineDir: "down",
+    overwrite: true
+  },
+  box: {
+    enabled: false,
+    side: {
+      n: ['-'],
+      e: ['|'],
+      s: ['-'],
+      w: ['|']
+    },
+    corner: {
+      ne: ['+'],
+      se: ['+'],
+      sw: ['+'],
+      nw: ['+']
+    },
+    fill: [' ']
+  },
+  line: {
+    enabled: false,
+    vert: ['|'],
+    horz: ['-'],
+    corner: {
+      ne: ['+'],
+      se: ['+'],
+      sw: ['+'],
+      nw: ['+']
+    },
+    start: {
+      n: ['+'],
+      s: ['+'],
+      e: ['+'],
+      w: ['+']
+    },
+    end: {
+      n: ['^'],
+      s: ['v'],
+      e: ['>'],
+      w: ['<']
+    },
+    free: {
+      enabled: false,
+      char: "#"
+    }
+  },
+  drawing: false, // Is mouse being moved with left button down?
+  startPoint: {x: 0, y: 0}, // Start of current selection
+  endPoint: {x: 0, y: 0}, // End of current selection
+  selection: false, // Current selection object (if one exists)
+  width: 54, // Width of drawing area (in chars)
+  height: 31, // Height of drawing area (in chars)
+  area: rootAreaInit(54, 31), // Drawing area
+};
+
 $(function() {
   //  For ease of programming, There is only one global object: root
   // root has one method: redraw, which assigns its contents to the DOM
   // None of the methods on root or its children change the object itself.
-  var root = {
-    overwrite: false,
-    mode: 'text',
-    drawing: false, // Is mouse being moved with left button down?
-    startPoint: {x: 0, y: 0}, // Start of current selection
-    endPoint: {x: 0, y: 0}, // End of current selection
-    selection: false, // Current selection object (if one exists)
-    width: 54, // Width of drawing area (in chars)
-    height: 31, // Height of drawing area (in chars)
-    area: rootAreaInit(54, 31), // Drawing area
-  };
+
   redraw(root); // Write Drawing area object to DOM
 
   $('#drawing-area').on('click', function(e) {
+    e.stopPropagation();
     // When in select mode, remember point clicked and select that point
     var point = getXY(e.pageX, e.pageY, root.width, root.height);
     if(root.area.hasPoint(point.x, point.y)) {
@@ -29,6 +78,8 @@ $(function() {
     }
 
   });
+
+  $('body').on('click', function(e) { root.selection = false; redraw(root); } );
 
   $('#drawing-area').on('mousemove', function(e) {
     // When in select mode, redraw the selection when the mouse moves
@@ -76,38 +127,44 @@ $(function() {
     // Parsing the keyboard
     console.log(e.key);
     // Find area object to write new character to
-    var area = root.area.subAreas[root.selection.index];
-    if (!area) {
-      // If not found, write to background object
-      area = root.area;
-    }
-    if (safeChar(e.key)) {
-      // console.log([selection.x, selection.y]);
-      area = writeChar(area, e.key, root.selection.x, root.selection.y);
-      root.area = updateSubArea(root.area, root.selection.index, area);
-      root.selection = cursorNext(root.selection);
-    } else {
-      switch (e.key) {
-        case 'Enter':
-          root.selection = cursorNextLine(root.selection);
-          break;
-        case 'Backspace':
-          root.selection = cursorPrev(root.selection);
-          area = writeChar(area, ' ', root.selection.x, root.selection.y);
-          root.area = updateSubArea(root.area, root.selection.index, area);
-          break;
-        case 'ArrowUp':
-        case 'ArrowDown':
-        case 'ArrowLeft':
-        case 'ArrowRight':
-          root.selection = moveCursor(root.selection, e.key);
-          break;
-        case 'Insert':
-          root.overwrite = !root.overwrite;
-          break;
+    if (root.selection) {
+      var area = root.area.subAreas[root.selection.index];
+      if (!area) {
+        // If not found, write to background object
+        area = root.area;
       }
-    }
-    redraw(root);
+      if (safeChar(e.key)) {
+        // console.log([selection.x, selection.y]);
+
+          area = writeChar(area, e.key, root.selection.x, root.selection.y);
+          root.area = updateSubArea(root.area, root.selection.index, area);
+          root.selection = cursorNext(root.selection);
+
+
+
+      } else {
+        switch (e.key) {
+          case 'Enter':
+            root.selection = cursorNextLine(root.selection);
+            break;
+          case 'Backspace':
+            root.selection = cursorPrev(root.selection);
+            area = writeChar(area, ' ', root.selection.x, root.selection.y);
+            root.area = updateSubArea(root.area, root.selection.index, area);
+            break;
+          case 'ArrowUp':
+          case 'ArrowDown':
+          case 'ArrowLeft':
+          case 'ArrowRight':
+            root.selection = moveCursor(root.selection, e.key);
+            break;
+          case 'Insert':
+            root.overwrite = !root.overwrite;
+            break;
+        }
+      }
+      redraw(root);
+    } // else { //Do nothing if no selection being made. }
   });
 });
 

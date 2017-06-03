@@ -5,7 +5,7 @@ function areaInit(selection) {
   var height = (selection.ymax - selection.ymin + 1);
   var content = contentFill(width, height);
   return {
-    type: 'basic',
+    type: 'text',
     lines: content,
     width: content[0].length,
     height: content.length,
@@ -79,6 +79,7 @@ function insertChar(area, string, x, y, direction) {
         selection.ymin--;
         output = areaInit(selection);
         output = mergeAreas(output, area);
+        j++;
       }
       for (var k = 0; k < j; k++) {
         output = writeChar(output, output.lines[k+1][i], x, y - j + k);
@@ -91,8 +92,8 @@ function insertChar(area, string, x, y, direction) {
         output = areaInit(selection);
         output = mergeAreas(output, area);
       }
-      for (var k = j + 1; k < output.height; k++) {
-        output = writeChar(output, area.lines[k-1][i], x, y - j + k);
+      for (var k = output.height - 1; k > j; k--) {
+        output = writeChar(output, output.lines[k-1][i], x, y - j + k);
       }
       output = writeChar(output, string, x, y);
       break;
@@ -103,7 +104,6 @@ function insertChar(area, string, x, y, direction) {
         output = areaInit(selection);
         output = mergeAreas(output, area);
         line = output.lines[j];
-        i++;
       }
       output.lines[j] = line.substring(0,i) + string[0] + line.substring(i, line.length - 1);
       break;
