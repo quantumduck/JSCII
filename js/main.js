@@ -50,7 +50,7 @@ window.options = {
 };
 
 window.state = {
-  drawing: false, // Is mouse being moved with left button down?
+  action: "none", // Is mouse being moved with left button down?
   startPoint: {x: 0, y: 0}, // Start of current selection
   endPoint: {x: 0, y: 0} // End of current selection
 };
@@ -70,18 +70,19 @@ $(function() {
     e.stopPropagation();
     // When in select mode, remember point clicked and select that point
     var point = getXY(e.pageX, e.pageY, window.rootarea);
-    if (window.options.free.enabled) {
-      var newArea = areaInit({
-        xmin: point.x,
-        ymin: point.y,
-        xmax: point.x,
-        ymax: point.y
-      });
-      newArea = writeChar(newArea, window.options.free.char, point.x, point.y);
-      window.rootarea = addSubArea(window.rootarea, newArea);
-    }
     if(window.rootarea.hasPoint(point.x, point.y)) {
+      if (window.options.free.enabled) {
+        var newArea = areaInit({
+          xmin: point.x,
+          ymin: point.y,
+          xmax: point.x,
+          ymax: point.y
+        });
+        newArea = writeChar(newArea, window.options.free.char, point.x, point.y);
+        window.rootarea = addSubArea(window.rootarea, newArea);
+      }
       console.log(point);
+      window.state.action = "none";
       window.selection = newAreaSelection(window.rootarea, point, point);
       redraw(window.rootarea, window.selection);
     } else {
@@ -94,6 +95,7 @@ $(function() {
 
   $('body').on('click', function(e) {
     window.selection = false;
+    window.state.action = "none";
     redraw(window.rootarea, window.selection);
   });
 
@@ -105,15 +107,36 @@ $(function() {
       var end = window.state.endPoint;
       var point = getXY(e.pageX, e.pageY, window.rootarea);
       var drawingData = false;
-      if (!window.state.drawing) {
-        window.state.drawing = true;
+      if (window.state.action === "none") {
+        // If no current action, decide which action to perform:
+        if (window.selection) {
+          var pointType = window.selection.getLocationClass(point.x, point.y;
+          switch (pointType) {
+            case "selected":
+              window.state.action = "move";
+              window.state.startPoint = point;
+              window.state.endPoint = point;
+              break;
+            case "left-edge":
+            case "top-left":
+              window.state.startPoint.x = window.selection.xmax;
+              window.state.action = "resize";
+              window.state.endPoint = point;
+              window.state.resizeType = pointType;
+              break;
+            case "rightEdge":
+            case "topRight":
+
+
+        }
+        window.state.action = "resizing";
         window.state.startPoint = point;
         drawingData = newAreaSelection(window.rootarea, point, point);
         window.rootarea = drawingData[0];
         window.selection = drawingData[1];
       }
       if (point != window.state.endPoint) {
-        root.area = clearEmptySelections(root.area);
+        window.rootarea = clearEmptySelections(window.rootarea);
         root.selection = drawSelection(root.startPoint, point);
             break;
           case 'box':
