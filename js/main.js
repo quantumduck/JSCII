@@ -1,4 +1,4 @@
-var root = {
+window.options = {
   text: {
     direction: "right",
     lineDir: "down",
@@ -41,36 +41,49 @@ var root = {
       s: ['v'],
       e: ['>'],
       w: ['<']
-    },
-    free: {
-      enabled: false,
-      char: "#"
     }
   },
+  free: {
+    enabled: false,
+    char: "#"
+  }
+};
+
+window.state = {
   drawing: false, // Is mouse being moved with left button down?
   startPoint: {x: 0, y: 0}, // Start of current selection
-  endPoint: {x: 0, y: 0}, // End of current selection
-  selection: false, // Current selection object (if one exists)
-  width: 54, // Width of drawing area (in chars)
-  height: 31, // Height of drawing area (in chars)
-  area: rootAreaInit(54, 31), // Drawing area
+  endPoint: {x: 0, y: 0} // End of current selection
 };
+
+window.selection = false; // Current selection object (if one exists)
+
+window.rootarea = rootAreaInit(54, 31), // Drawing area
 
 $(function() {
   //  For ease of programming, There is only one global object: root
   // root has one method: redraw, which assigns its contents to the DOM
   // None of the methods on root or its children change the object itself.
 
-  redraw(root); // Write Drawing area object to DOM
+  redraw(window.rootarea, window.selection); // Write Drawing area object to DOM
 
   $('#drawing-area').on('click', function(e) {
     e.stopPropagation();
     // When in select mode, remember point clicked and select that point
-    var point = getXY(e.pageX, e.pageY, root.width, root.height);
-    if(root.area.hasPoint(point.x, point.y)) {
+    var point = getXY(e.pageX, e.pageY, window.rootarea);
+    if (window.options.free.enabled) {
+      var newArea = areaInit({
+        xmin: point.x,
+        ymin: point.y,
+        xmax: point.x,
+        ymax: point.y
+      });
+      newArea = writeChar(newArea, window.options.free.char, point.x, point.y);
+      window.rootarea = addSubArea(window.rootarea, newArea);
+    }
+    if(window.rootarea.hasPoint(point.x, point.y)) {
       console.log(point);
-      root.selection = newAreaSelection(root.area, point, point);
-      redraw(root);
+      window.selection = newAreaSelection(window.rootarea, point, point);
+      redraw(window.rootarea, window.selection);
     } else {
       // Keep track of bad click events...
       console.log(point);
@@ -79,31 +92,29 @@ $(function() {
 
   });
 
-  $('body').on('click', function(e) { root.selection = false; redraw(root); } );
+  $('body').on('click', function(e) {
+    window.selection = false;
+    redraw(window.rootarea, window.selection);
+  });
 
   $('#drawing-area').on('mousemove', function(e) {
     // When in select mode, redraw the selection when the mouse moves
     // (only when left button is held down)
     if (e.buttons === 1) {
-      var start = root.startPoint;
-      var end = root.endPoint;
-      var point = getXY(e.pageX, e.pageY, root.width, root.height);
+      var start = window.state.startPoint;
+      var end = window.state.endPoint;
+      var point = getXY(e.pageX, e.pageY, window.rootarea);
       var drawingData = false;
-      if (!root.drawing) {
-        root.drawing = true;
-        root.startPoint = point;
-        switch (root.mode) {
-          case 'text':
-            drawingData = newAreaSelection(root.area, point, point);
-            root.area = drawingData[0];
-            root.selection = drawingData[1];
-        }
+      if (!window.state.drawing) {
+        window.state.drawing = true;
+        window.state.startPoint = point;
+        drawingData = newAreaSelection(window.rootarea, point, point);
+        window.rootarea = drawingData[0];
+        window.selection = drawingData[1];
       }
-      if (point != root.endPoint) {
-        switch (root.mode) {
-          case 'text':
-            root.area = clearEmptySelections(root.area);
-            root.selection = drawSelection(root.startPoint, point);
+      if (point != window.state.endPoint) {
+        root.area = clearEmptySelections(root.area);
+        root.selection = drawSelection(root.startPoint, point);
             break;
           case 'box':
           case 'line':

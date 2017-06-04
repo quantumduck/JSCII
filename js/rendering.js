@@ -1,8 +1,8 @@
 // The redraw function must be called after every change to ensure
 // the new version is loaded into the browser.
 
-function redraw(rootObject) {
-  $('#drawing-area').html(getHTML(rootObject.area, rootObject.selection));
+function redraw(rootarea, selection) {
+  $('#drawing-area').html(getHTML(rootarea, selection));
   // This line ensures getOffset() works correctly.
   $('body').css('max-width', $('#drawing-container').css('width'));
 }
@@ -90,12 +90,12 @@ function getOffset() {
 }
 
 // Convert coordinates from pixels into chacater indices.
-function getXY(rawX, rawY, cols, rows) {
+function getXY(rawX, rawY, area) {
   var width = numFromPixels($('#drawing-area').css('width'));
   var height =  numFromPixels($('#drawing-area').css('height'));
   var offset = getOffset();
-  var x = Math.floor((cols * (rawX - offset.left)) / width);
-  var y = Math.floor((rows * (rawY - offset.top)) / height);
+  var x = Math.floor((area.width * (rawX - offset.left)) / width);
+  var y = Math.floor((area.height * (rawY - offset.top)) / height);
   return {x: x, y: y};
 }
 
