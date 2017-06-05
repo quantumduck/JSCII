@@ -39,16 +39,16 @@ function objectSelection(rootarea, point) {
     selection.ymin += area.border.top.height;
     selection.xmax -= area.border.right.width;
     selection.ymax -= area.border.bottom.height;
-    if (selection.x < selection.xmin) {
-      selection.x = selection.xmin;
-    } else if (selection.x > selection.xmax) {
-      selection.x = selection.xmax;
-    }
-    if (selection.y < selection.ymin) {
-      selection.y = selection.ymin;
-    } else if (selection.y > selection.ymax) {
-      selection.y = selection.ymax;
-    }
+  }
+  if (selection.x < selection.xmin) {
+    selection.x = selection.xmin;
+  } else if (selection.x > selection.xmax) {
+    selection.x = selection.xmax;
+  }
+  if (selection.y < selection.ymin) {
+    selection.y = selection.ymin;
+  } else if (selection.y > selection.ymax) {
+    selection.y = selection.ymax;
   }
   selection.getLocationClass = function(x, y) {
     return getLocationClass(area, this, x, y);

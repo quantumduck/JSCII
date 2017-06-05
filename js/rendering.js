@@ -117,3 +117,94 @@ function safeChar(char) {
   }
   return char;
 }
+
+function drawArea(rootarea, index, start, point, end) {
+  if ((start.x === point.x) && (start.y === point.y) &&
+      (end.x === point.x) && (end.y === point.y)) {
+    // Start a new selection
+    return newSelection(root.area, point);
+  } else {
+    // Resize current selection
+    var newPoint = getXY(e.pageX, e.pageY, root.width, root.height);
+    if (
+      newPoint.x != root.endPoint.x ||
+      newPoint.y != root.endPoint.y
+    ) {
+      root.endPoint = newPoint;
+      // console.log(root.endPoint);
+      if (
+        root.startPoint.x === root.endPoint.x &&
+        root.startPoint.y === root.endPoint.y
+      ) {
+        // Make a new one-point selection
+        root.area = clearEmptySelections(root.area);
+        root.selection = newSelection(root.area, root.startPoint);
+      } else {
+        // Make a new two-point or box selection
+        root.area = clearEmptySelections(root.area);
+        root.selection = newSelection(root.area, root.startPoint, root.endPoint);
+        root.area = addSubArea(root.area, areaInit(root.selection));
+        console.log(root.selection);
+        redraw(root);
+      }
+    }
+  }
+}
+
+function updateArea(rootarea, selection, start, end) {
+  var area = rootarea.subAreas[selection.index];
+  var newSelection = selection;
+  var dx = end.x - start.x;
+  var dy = end.y - start.y;
+  switch (selection.getLocationClass(start.x, start.y)) {
+    case "selected":
+      area.offset.top += dy;
+      area.offset.left += dx;
+      newSelection.x += dx;
+      newSelection.y += dy;
+      break;
+    case "top-left":
+      if (selection.xmax - selection.xmin - dx > 0) {
+        newSelection.xmin += dx;
+      }
+    case "top-edge":
+      if (selection.ymax - selection.ymin - dy > 0) {
+        newSelection.ymin += dy;
+      }
+      break;
+    case "bottom-left":
+      if (selection.ymax + dy - selection.ymin > 0) {
+        newSelection.ymax += dy;
+      }
+    case "left-edge":
+      if (selection.xmax - selection.xmin - dx > 0) {
+        newSelection.xmin += dx;
+      }
+      break;
+    case "bottom-right":
+      if (selection.xmax + dx - selection.xmin > 0) {
+        newSelection.xmax += dx;
+      }
+    case "bottom-edge":
+      if (selection.ymax + dy - selection.ymin > 0) {
+        newSelection.ymax += dy;
+      }
+      break;
+    case "top-right":
+      if (selection.ymax - selection.ymin - dy > 0) {
+        newSelection.ymin += dy;
+      }
+    case "right-edge":
+      if (selection.xmax + dx - selection.xmin > 0) {
+        newSelection.xmax += dx;
+      }
+      break;
+    default:
+      break;
+  }
+  switch (area.type) {
+    case "box":
+    
+  }
+  area = subArea(area, selection);
+}

@@ -51,6 +51,7 @@ window.options = {
 
 window.state = {
   action: "none", // Is mouse being moved with left button down?
+  resizeType: "none", // If action is resize, which type of resize?
   startPoint: {x: 0, y: 0}, // Start of current selection
   endPoint: {x: 0, y: 0} // End of current selection
 };
@@ -108,45 +109,32 @@ $(function() {
       var point = getXY(e.pageX, e.pageY, window.rootarea);
       var drawingData = false;
       if (window.state.action === "none") {
-        // If no current action, decide which action to perform:
+        window.state.endPoint = point;
+        window.state.startPoint = point;
         if (window.selection) {
           var pointType = window.selection.getLocationClass(point.x, point.y;
           switch (pointType) {
             case "selected":
               window.state.action = "move";
-              window.state.startPoint = point;
-              window.state.endPoint = point;
               break;
-            case "left-edge":
-            case "top-left":
-              window.state.startPoint.x = window.selection.xmax;
+            case "unselected":
+              window.state.action = "draw";
+              break;
+            default:
               window.state.action = "resize";
-              window.state.endPoint = point;
               window.state.resizeType = pointType;
               break;
-            case "rightEdge":
-            case "topRight":
+          }
+        } else {
+          window.state.action = "draw";
+        }
+        // Draw something!
+      } else if (point != window.state.endPoint) {
+        // The mouse has moved to a new square!
 
 
-        }
-        window.state.action = "resizing";
-        window.state.startPoint = point;
-        drawingData = newAreaSelection(window.rootarea, point, point);
-        window.rootarea = drawingData[0];
-        window.selection = drawingData[1];
-      }
-      if (point != window.state.endPoint) {
-        window.rootarea = clearEmptySelections(window.rootarea);
-        root.selection = drawSelection(root.startPoint, point);
-            break;
-          case 'box':
-          case 'line':
-          case 'free':
-        }
       }
 
-      root.endPoint = point;
-      redraw(root);
     }
   });
 
@@ -201,36 +189,3 @@ $(function() {
     } // else { //Do nothing if no selection being made. }
   });
 });
-
-function drawSelection(start, point, end) {
-  if ((start.x === point.x) && (start.y === point.y) &&
-      (end.x === point.x) && (end.y === point.y)) {
-    // Start a new selection
-    return newSelection(root.area, point);
-  } else {
-    // Resize current selection
-    var newPoint = getXY(e.pageX, e.pageY, root.width, root.height);
-    if (
-      newPoint.x != root.endPoint.x ||
-      newPoint.y != root.endPoint.y
-    ) {
-      root.endPoint = newPoint;
-      // console.log(root.endPoint);
-      if (
-        root.startPoint.x === root.endPoint.x &&
-        root.startPoint.y === root.endPoint.y
-      ) {
-        // Make a new one-point selection
-        root.area = clearEmptySelections(root.area);
-        root.selection = newSelection(root.area, root.startPoint);
-      } else {
-        // Make a new two-point or box selection
-        root.area = clearEmptySelections(root.area);
-        root.selection = newSelection(root.area, root.startPoint, root.endPoint);
-        root.area = addSubArea(root.area, areaInit(root.selection));
-        console.log(root.selection);
-        redraw(root);
-      }
-    }
-  }
-}
