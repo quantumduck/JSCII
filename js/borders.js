@@ -56,20 +56,11 @@ function corner(rect, edgeV, edgeH) {
 }
 
 function setCorner(rect, edgeV, edgeH, pattern) {
-  if (!pattern) {
-    return rect;
-  }
-  if (
-    pattern.length === rect.lines.length &&
-    pattern[0].length === rect.lines[0].length
-  ) {
-    var output = rect;
-    var corner = corner(rect, edgeV, edgeH);
-    corner.lines = pattern;
-    output.lines = mergeAreas(corner, output).lines;
-    return output;
-  }
-  return rect;
+  var output = rect;
+  var corner = corner(rect, edgeV, edgeH);
+  corner.lines = pattern;
+  output.lines = mergeAreas(output, corner).lines;
+  return output;
 }
 
 function borderPattern(rect, edge) {
