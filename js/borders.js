@@ -6,7 +6,7 @@ function rectangleInit(selection) {
 
 function toRectangle(area) {
   var rect = area;
-  rect.type = 'rectangle';
+  rect.type = 'box';
   rect.border = {
     top: {height: 0, rep: 1},
     left: {width: 0, rep: 1},
@@ -19,7 +19,19 @@ function toRectangle(area) {
   rect.borderPattern = function(edge) {
     return borderPattern(this, edge);
   };
+  rect.interior = function() {
+    return interior(this);
+  }
   return rect;
+}
+
+function interior(rect) {
+  var selection = rect.selectAll();
+  selection.xmin += rect.border.left.width;
+  selection.ymin += rect.border.top.height;
+  selection.xmax -= rect.border.right.width;
+  selection.ymax -= rect.border.bottom.height;
+  return subArea(area, selection);
 }
 
 function corner(rect, edgeV, edgeH) {
@@ -150,9 +162,7 @@ function setBorder(rect, edge, pattern) {
 
 function borderResize(rect, selection) {
   var outerSelection = selection;
-  var output = rect;
-  var minHeight = rect.border.top.height + rect.border.bottom.height;
-  var minWidth = rect.border.left.width + rect.border.right.width;
+  var output = subArea(rect.interior(), selection);
   var corners = [
     {v: 'top', h:'left', pat: corner(rect, 'top', 'left').lines},
     {v: 'top', h:'right', pat: corner(rect, 'top', 'right').lines},
@@ -165,16 +175,12 @@ function borderResize(rect, selection) {
     {edge: 'right', pat: borderPattern(rect, 'right')},
     {edge: 'bottom', pat: borderPattern(rect, 'bottom')}
   ];
-  if (selection.xmax - selection.xmin < minWidth) {
-    outerSelection.xmax = selection.xmin + minWidth;
-  }
-  if (selection.ymax - selection.ymin < minHeight) {
-    outerSelection.ymax = selection.ymin + minHeight;
-  }
-  output.lines = subArea(rect, outerSelection).lines;
-  output.width = output.lines[0].length;
-  output.height = output.lines.length;
-  output.offset = {left: outerSelection.xmin, top: outerSelection.ymin};
+  outerSelection.xmin -= rect.border.left.width;
+  outerSelection.ymin -= rect.border.top.height;
+  outerSelection.xmax += rect.border.right.width;
+  outerSelection.ymax += rect.border.bottom.height;
+  output = subArea(output, outerSelection);
+  output.border = rect.border;
   for (var i = 0; i < edges.length; i++) {
     if (edges[i].pat) {
       output = setBorder(output, edges[i].edge, edges[i].pat);
@@ -182,7 +188,7 @@ function borderResize(rect, selection) {
   }
   for (var i = 0; i < corners.length; i++) {
     if (corners[i].cor) {
-      output = output.setCorner(corners[i].cor.lines, corners[i].v, corners[i].h);
+      output = setCorner(output, corners[i].pat, corners[i].v, corners[i].h);
     }
   }
   return output;
