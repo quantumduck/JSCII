@@ -152,13 +152,12 @@ function setBorder(rect, edge, pattern) {
 }
 
 function borderResize(rect, selection) {
-  var outerSelection = selection;
-  var output = subArea(rect.interior(), selection);
+  var output = toRectangle(subArea(rect.interior(), selection));
   var corners = [
-    {v: 'top', h:'left', pat: corner(rect, 'top', 'left').lines},
-    {v: 'top', h:'right', pat: corner(rect, 'top', 'right').lines},
-    {v: 'bottom', h:'right', pat: corner(rect, 'bottom', 'right').lines},
-    {v: 'bottom', h:'left', pat: corner(rect, 'bottom', 'left').lines}
+    {v: 'top', h:'left', cor: corner(rect, 'top', 'left')},
+    {v: 'top', h:'right', cor: corner(rect, 'top', 'right')},
+    {v: 'bottom', h:'right', cor: corner(rect, 'bottom', 'right')},
+    {v: 'bottom', h:'left', cor: corner(rect, 'bottom', 'left')}
   ];
   var edges = [
     {edge: 'top', pat: borderPattern(rect, 'top')},
@@ -166,12 +165,7 @@ function borderResize(rect, selection) {
     {edge: 'right', pat: borderPattern(rect, 'right')},
     {edge: 'bottom', pat: borderPattern(rect, 'bottom')}
   ];
-  outerSelection.xmin -= rect.border.left.width;
-  outerSelection.ymin -= rect.border.top.height;
-  outerSelection.xmax += rect.border.right.width;
-  outerSelection.ymax += rect.border.bottom.height;
-  output = subArea(output, outerSelection);
-  output.border = rect.border;
+  // Note: settng border expands the area.
   for (var i = 0; i < edges.length; i++) {
     if (edges[i].pat) {
       output = setBorder(output, edges[i].edge, edges[i].pat);
@@ -179,7 +173,7 @@ function borderResize(rect, selection) {
   }
   for (var i = 0; i < corners.length; i++) {
     if (corners[i].cor) {
-      output = setCorner(output, corners[i].pat, corners[i].v, corners[i].h);
+      output = setCorner(output, corners[i].v, corners[i].h, corners[i].cor.lines);
     }
   }
   return output;
