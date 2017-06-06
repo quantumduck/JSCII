@@ -69,9 +69,11 @@ $(function() {
 
   $('#drawing-area').on('click', function(e) {
     e.stopPropagation();
+    e.preventDefault();
     // When in select mode, remember point clicked and select that point
     var point = getXY(e.pageX, e.pageY, window.rootarea);
     if(window.rootarea.hasPoint(point.x, point.y)) {
+      console.log(point);
       if (window.options.free.enabled) {
         var newArea = areaInit({
           xmin: point.x,
@@ -82,7 +84,6 @@ $(function() {
         newArea = writeChar(newArea, window.options.free.char, point.x, point.y);
         window.rootarea = addSubArea(window.rootarea, newArea);
       }
-      console.log(point);
       window.state.action = "none";
       window.selection = newAreaSelection(window.rootarea, point, point);
       redraw(window.rootarea, window.selection);
@@ -104,8 +105,6 @@ $(function() {
     // When in select mode, redraw the selection when the mouse moves
     // (only when left button is held down)
     if (e.buttons === 1) {
-      var start = window.state.startPoint;
-      var end = window.state.endPoint;
       var point = getXY(e.pageX, e.pageY, window.rootarea);
       var drawingData = false;
       if (window.state.action === "none") {
@@ -129,7 +128,7 @@ $(function() {
           window.state.action = "draw";
         }
         // Draw something!
-      } else if (point != window.state.endPoint) {
+      } else if ((point.x !== window.state.endPoint.x) || (point.y !== window.state.endPoint.y)) {
         // The mouse has moved to a new square!
 
 
