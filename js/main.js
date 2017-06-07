@@ -125,6 +125,7 @@ $(function() {
               break;
           }
         } else {
+          // If ther is no active selection, then you need to draw something new.
           window.state.action = "draw";
         }
         // Draw something!
