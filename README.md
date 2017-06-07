@@ -12,4 +12,6 @@ At the moment, you can add text and select boxes, but there is no way to save an
 
 ## Current Goal
 
-Once again, I am in the process of reworking the code. This time, I want to isolate all the global variables into one object and change the syntax of the functions. Functions that return a property or value will be attached to objects. Functions that transform objects will be passed that object as the first parameter. For example, to push to an array, I would use `newArray = pushToArray(oldArray, newValue)`, but to find the last element of the array, I would use `array.lastElement()`. I will continue to avoid having side effects, but if necessary, a function with side effects should be run on its own, with no return value, and only in the `main.js` file.
+Having learned a bit more about JavaScript, it is clear that more refactoring will be required. I think I will abandon the goal of a functional approach for this app and just focus on getting it working. There are still some methods that do not properly copy objects, however. Since Javascript passes references instead of copies of objects to functions, I will probably have to modify objects in place.
+
+
