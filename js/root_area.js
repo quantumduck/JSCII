@@ -37,24 +37,42 @@ function rootAreaInit(width, height) {
     }
     return area.contentAt(x, y);
   };
-  bg.selectPoint = function(point1, point2) {
-    return newSelection(this, point1, point2);
-  };
+  // bg.selectPoint = function(point1, point2) {
+  //   return newSelection(this, point1, point2);
+  // };
   return bg;
 }
 
-function clearEmptySelections(rootarea) {
-  var output = rootarea;
-  var topArea = rootarea.subAreas[rootarea.subAreas.length - 1];
-  while (topArea && topArea.isEmpty()) {
-    output.subAreas.pop();
-    topArea = output.subAreas[output.subAreas.length - 1];
+function resizeRootArea(area, width, height) {
+  var output = rootAreaInit(width, height);
+  for (var i = 0; i < area.subAreas.length; i++) {
+    output.subAreas[i] = area.subAreas[i];
+  }
+  return output;
+}
+
+function moveAll(area, x, y) {
+  var output = rootAreaInit(area.width, area.height);
+  for (var i = 0; i < area.subAreas.length; i++) {
+    output.subAreas[i] = moveArea(area.subAreas[i], x, y);
+  }
+  return output;
+}
+
+function clearEmptySubAreas(area) {
+  var output = rootAreaInit(area.width, rootarea.height);
+  for (var i = 0; i < area.subAreas.length) {
+    if (area.subAreas[i].isEmpty()) {
+      // Do nothing;
+    } else {
+      output.subAreas.push(area.subAreas[i]);
+    }
   }
   return output;
 }
 
 function reorderSubArea(area, index, level) {
-  var output = area;
+  var output = rootAreaInit(area.width, area.height);
   var subArea = area.subAreas[index];
   if (subArea) {
     switch (level) {
