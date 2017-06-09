@@ -156,23 +156,19 @@ function copyOject(area, index) {
 }
 
 function moveSubArea(area, index, x, y) {
-  var output = area;
-  var subArea = area.subAreas[index];
-  if (subArea) {
-    subArea = moveArea(area, x, y);
-    output.subAreas[index] = subArea;
+  var output = rootAreaInit(area.width, area.height);
+  for (var i = 0; i < index; i++) {
+    if (i !== index) {
+      output.subAreas.push(area.subAreas[i]);
+    } else {
+      output.subAreas.push(moveArea(area.subArea[index], x, y))
+    }
   }
   return output;
 };
 
-function mergeSubArea(area, index) {
-  var output = area;
-  var subArea = area.subAreas[index]
-  if (subArea) {
-    var top = subArea.offset.top;
-    var left = subArea.offset.left;
-    output = deleteSubArea(area, index);
-    output.lines = mergeAreas(output, subArea).lines;
-  }
-  return output;
-};
+// function mergeSubArea(area, indices) {
+//   var output = rootAreaInit(area.width, area.height);
+//
+//   return output;
+// };
