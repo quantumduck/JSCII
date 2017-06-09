@@ -1,42 +1,21 @@
 'use strict';
 
-function rectangleInit(selection) {
-  return toRectangle(areaInit(selection));
-}
-
-function toRectangle(area) {
-  var rect = area;
-  rect.type = 'box';
-  rect.border = {
-    top: {height: 0, rep: 1},
-    left: {width: 0, rep: 1},
-    bottom: {height: 0, rep: 1},
-    right: {width: 0, rep: 1}
-  };
-  rect.corner = function(edgeV, edgeH) {
-    return corner(this, edgeV, edgeH);
-  };
-  rect.borderPattern = function(edge) {
-    return borderPattern(this, edge);
-  };
-  rect.interior = function() {
-    return interior(this);
+function interior(area, border) {
+  var selection = area.selectAll();
+  if (area.border) {
+    selection.xmin += area.border.left.width;
+    selection.ymin += area.border.top.height;
+    selection.xmax -= area.border.right.width;
+    selection.ymax -= area.border.bottom.height;
+    return subArea(area, selection);
+  } else {
+    return area;
   }
-  return rect;
 }
 
-function interior(rect) {
-  var selection = rect.selectAll();
-  selection.xmin += rect.border.left.width;
-  selection.ymin += rect.border.top.height;
-  selection.xmax -= rect.border.right.width;
-  selection.ymax -= rect.border.bottom.height;
-  return subArea(area, selection);
-}
-
-function corner(rect, edgeV, edgeH) {
-  var selection = selectAll(rect);
-  var bor = rect.border
+function corner(area, edgeV, edgeH) {
+  var selection = selectAll(area);
+  var bor = area.border
   if (bor) {
     if ((bor[edgeH].width > 0) && (bor[edgeV].height > 0)) {
       if (edgeH === 'left') {
@@ -49,24 +28,28 @@ function corner(rect, edgeV, edgeH) {
       } else if (edgeV === 'bottom') {
         selection.ymin = selection.ymax - bor.bottom.height;
       }
-      return subArea(rect, selection);
+      return subArea(area, selection);
     }
   }
   return false;
 }
 
-function setCorner(rect, edgeV, edgeH, pattern) {
-  var output = rect;
-  var corner = corner(rect, edgeV, edgeH);
-  corner.lines = pattern;
-  output.lines = mergeAreas(output, corner).lines;
-  return output;
+function setCorner(area, edgeV, edgeH, pattern) {;
+  var output = corner(area, edgeV, edgeH);
+  if (output) {
+    output.lines = pattern;
+    output = mergeAreas(area, output);
+    output.border = area.border;
+    return output;
+  } else {
+    return area;
+  }
 }
 
-function borderPattern(rect, edge) {
-  var selection = selectAll(rect);
-  if (rect.border) {
-    var bor = rect.border;
+function borderPattern(area, edge) {
+  var selection = selectAll(area);
+  if (area.border) {
+    var bor = area.border;
     if (bor[edge].width > 0) {
       switch (edge) {
         case 'left':
@@ -90,17 +73,17 @@ function borderPattern(rect, edge) {
         selection.ymin = selection.ymax - bor.bottom.height;
         break;
       }
-      return subArea(rect, selection).lines;
+      return subArea(area, selection).lines;
     }
   }
   return false;
 }
 
-function setBorder(rect, edge, pattern) {
-  var output = rect;
+function setBorder(area, edge, pattern) {
+  var output = area;
   var borderData = {};
   if (pattern) {
-    var selection = selectAll(rect);
+    var selection = selectAll(area);
     switch (edge) {
       case 'top': {
         selection.ymax = selection.ymin + pattern.length - 1;
@@ -127,10 +110,10 @@ function setBorder(rect, edge, pattern) {
         break;
       }
     }
-    var border = subArea(rect, selection);
+    var border = subArea(area, selection);
     border.lines = contentFill(border.width, border.height, pattern);
     border.opaque = true;
-    output.lines = mergeAreas(border, rect).lines;
+    output.lines = mergeAreas(border, area).lines;
     output.border[edge] = borderData;
     return output;
   } else {
@@ -151,19 +134,19 @@ function setBorder(rect, edge, pattern) {
   }
 }
 
-function borderResize(rect, selection) {
-  var output = toRectangle(subArea(rect.interior(), selection));
+function borderResize(area, selection) {
+  var output = toRectangle(subArea(area.interior(), selection));
   var corners = [
-    {v: 'top', h:'left', cor: corner(rect, 'top', 'left')},
-    {v: 'top', h:'right', cor: corner(rect, 'top', 'right')},
-    {v: 'bottom', h:'right', cor: corner(rect, 'bottom', 'right')},
-    {v: 'bottom', h:'left', cor: corner(rect, 'bottom', 'left')}
+    {v: 'top', h:'left', cor: corner(area, 'top', 'left')},
+    {v: 'top', h:'right', cor: corner(area, 'top', 'right')},
+    {v: 'bottom', h:'right', cor: corner(area, 'bottom', 'right')},
+    {v: 'bottom', h:'left', cor: corner(area, 'bottom', 'left')}
   ];
   var edges = [
-    {edge: 'top', pat: borderPattern(rect, 'top')},
-    {edge: 'left', pat: borderPattern(rect, 'left')},
-    {edge: 'right', pat: borderPattern(rect, 'right')},
-    {edge: 'bottom', pat: borderPattern(rect, 'bottom')}
+    {edge: 'top', pat: borderPattern(area, 'top')},
+    {edge: 'left', pat: borderPattern(area, 'left')},
+    {edge: 'right', pat: borderPattern(area, 'right')},
+    {edge: 'bottom', pat: borderPattern(area, 'bottom')}
   ];
   // Note: settng border expands the area.
   for (var i = 0; i < edges.length; i++) {
