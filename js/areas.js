@@ -34,6 +34,18 @@ function areaInit(selection) {
   };
 }
 
+function copyArea(area) {
+  var copy = areaInit(area.selectAll());
+  for (var j = 0; j < area.height; j++) {
+    var line = '';
+    for (var i = 0; i < area.width; i++) {
+      line.push(area.lines[j][i]);
+    }
+    copy.lines[j] = line;
+  }
+  return copy;
+}
+
 function contentFill(width, height, pattern) {
   // Fill an array of strings with sapces or given characters
   if (!width || !height) {
