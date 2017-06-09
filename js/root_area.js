@@ -77,22 +77,46 @@ function reorderSubArea(area, index, level) {
   if (subArea) {
     switch (level) {
       case 'bottom': {
-        for (var i = index; i > 0; i--) {
-          output = reorderSubArea(output, i, -1);
+        output.subAreas.push(subArea);
+        for (var i = 0; i < area.subAreas.length; i++) {
+          if (i !== index) {
+            output.subAreas.push(area.subAreas[i]);
+          }
         }
         break;
       } case 'top': {
-        for (var i = index; i < area.subAreas.length - 1; i++) {
-          output = reorderSubArea(output, i, 1);
+        for (var i = 0; i < area.subAreas.length - 1; i++) {
+          if (i !== index) {
+            output.subAreas.push(area.subAreas[i]);
+          }
+        }
+        output.subAreas.push(subArea);
+        break;
+      } case 'up': {
+        for (var i = 0; i < index; i++) {
+          output.subAreas.push(area.subAreas[i]);
+        }
+        if (index < area.subAreas.length - 1) {
+          output.subAreas.push(area.subAreas[index + 1]);
+        }
+        output.subAreas.push(subArea);
+        for (var i = index + 2; i < area.subAreas.length; i++) {
+          output.subAreas.push(area.subAreas[i]);
         }
         break;
-      } case 1: {
-        output.subAreas[index] = area.subAreas[index + 1];
-        output.subAreas[index + 1] = subArea;
-        break;
-      } case -1: {
-        output.subAreas[index] = area.subAreas[index - 1];
-        output.subAreas[index - 1] = subArea;
+      } case 'down': {
+        if (index > 0) {
+          for (var i = 0; i < index - 1; i++) {
+            output.subAreas.push(area.subAreas[i]);
+          }
+        }
+        output.subAreas.push(subArea);
+        if (index > 0) {
+          output.subAreas.push(area.subAreas[index - 1]);
+        }
+        for (var i = index + 1; i < area.subAreas.length; i++) {
+          output.subAreas.push(area.subAreas[i]);
+        }
         break;
       }
     }
@@ -101,13 +125,13 @@ function reorderSubArea(area, index, level) {
 }
 
 function addSubArea(area, subArea) {
-  var output = area;
+  var output = resizeRootArea(area, area.width, area.height);
   output.subAreas.push(subArea);
   return output;
 }
 
 function updateSubArea(area, index, subArea) {
-  var output = area;
+  var output = resizeRootArea(area, area.width, area.height);
   if (index === -1) {
     return subArea;
   }
@@ -116,20 +140,18 @@ function updateSubArea(area, index, subArea) {
 }
 
 function deleteSubArea(area, index) {
-  var output = area;
-  if (area.subAreas[index]) {
-    output = reorderSubArea(area, index, 'top');
-    output.subAreas.pop();
+  var output = rootAreaInit(area.width, area.height);
+  for (var i = 0; i < index; i++) {
+    if (i !== index) {
+      output.subAreas.push(area.subAreas[i]);
+    }
   }
   return output;
 }
 
 function copyOject(area, index) {
-  var output = area;
-  var subArea = area.subAreas[index];
-  if (subArea) {
-    output.subAreas.push(subArea);
-  }
+  var output = resizeRootArea(area, area.width, area.height);
+  output.subAreas.push(area.subAreas[index]);
   return output;
 }
 
