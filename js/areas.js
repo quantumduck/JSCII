@@ -35,15 +35,19 @@ function areaInit(selection) {
 }
 
 function copyArea(area) {
-  var copy = areaInit(area.selectAll());
+  return mergeAreas(area, area);
+}
+
+function copyContent(area) {
+  var content = [];
   for (var j = 0; j < area.height; j++) {
     var line = '';
     for (var i = 0; i < area.width; i++) {
       line.push(area.lines[j][i]);
     }
-    copy.lines[j] = line;
+    content.push(line);
   }
-  return copy;
+  return content;
 }
 
 function contentFill(width, height, pattern) {
@@ -147,86 +151,18 @@ function isEmpty(area) {
 }
 
 function moveArea(area, x, y) {
-  var output = area;
+  var output = copyArea(area);
   output.offset.left += x;
   output.offset.top += y;
   return output;
 }
 
-function writeChar(area, string, x, y) {
-  var output = area;
-  var j = y - output.offset.top;
-  var i = x - output.offset.left;
-  var line = output.lines[j];
-  output.lines[j] = (
-    line.substring(0, i) +
-    string[0] +
-    line.substring(i + 1, line.length)
-  );
-  return output;
-}
-
-function insertChar(area, string, x, y, direction) {
-  var output = area;
-  var selection = area.selectAll()
-  var i = x - area.offset.left;
-  var j = y - area.offset.top;
-  switch(direction) {
-    case "left":
-      var line = area.lines[j];
-      if ((line[0] != ' ') || (i === 0)) {
-        selection.xmin--;
-        output = areaInit(selection);
-        output = mergeAreas(output, area);
-        line = output.lines[j];
-        i++;
-      }
-      output.lines[j] = line.substring(1,i + 1) + string[0] + line.substring(i + 1, line.length);
-      break;
-    case "up":
-      if ((area.lines[0][i] != ' ') || (j === 0)) {
-        selection.ymin--;
-        output = areaInit(selection);
-        output = mergeAreas(output, area);
-        j++;
-      }
-      for (var k = 0; k < j; k++) {
-        output = writeChar(output, output.lines[k+1][i], x, y - j + k);
-      }
-      output = writeChar(output, string, x, y);
-      break;
-    case "down":
-      if ((area.lines[area.height - 1][i] != ' ') || (j === area.height - 1)) {
-        selection.ymax++;
-        output = areaInit(selection);
-        output = mergeAreas(output, area);
-      }
-      for (var k = output.height - 1; k > j; k--) {
-        output = writeChar(output, output.lines[k-1][i], x, y - j + k);
-      }
-      output = writeChar(output, string, x, y);
-      break;
-    default:
-      var line = area.lines[j];
-      if ((line[0] != ' ') || (i === line.length - 1)) {
-        selection.xmax++;
-        output = areaInit(selection);
-        output = mergeAreas(output, area);
-        line = output.lines[j];
-      }
-      output.lines[j] = line.substring(0,i) + string[0] + line.substring(i, line.length - 1);
-      break;
-  }
-  return output;
-}
-
 function subArea(area, selection) {
   // Resize an area using a new selection without moving the content.
-  var output = area;
-  var template = areaInit(selection);
+  var output = areaInit(selection);
   for (var y = selection.ymin; y <= selection.ymax; y++) {
     for (var x = selection.xmin; x <= selection.xmax; x++) {
-      template.lines[y - selection.ymin] = '';
+      output.lines[y - selection.ymin] = '';
       if (hasPoint(area, x, y)) {
         template.lines[y - selection.ymin] += area.contentAt(x, y);
       } else {
@@ -234,10 +170,6 @@ function subArea(area, selection) {
       }
     }
   }
-  output.lines = template.lines;
-  output.width = template.width;
-  output.height = template.height;
-  output.offset = template.offset;
   return output;
 }
 
