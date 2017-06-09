@@ -126,15 +126,7 @@ function cursorPrev(selection) {
   return output;
 }
 
-function clearEmptySelections(rootarea) {
-  var output = rootarea;
-  var topArea = rootarea.subAreas[rootarea.subAreas.length - 1];
-  while (topArea && topArea.isEmpty()) {
-    output.subAreas.pop();
-    topArea = output.subAreas[output.subAreas.length - 1];
-  }
-  return output;
-}
+
 
 function getLocationClass(area, selection, x, y) {
   // Default is "unselected"

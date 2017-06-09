@@ -64,3 +64,38 @@ function insertChar(area, string, x, y, direction) {
   }
   return output;
 }
+
+
+function writeChar(area, string, x, y) {
+  var output = copyArea(area);
+  var j = y - output.offset.top;
+  var i = x - output.offset.left;
+  var line = output.lines[j];
+  output.lines[j] = (
+    line.substring(0, i) +
+    string[0] +
+    line.substring(i + 1, line.length)
+  );
+  return output;
+}
+
+function insertNewLine(area, string, x, y, direction) {
+  var output = copyArea(area);
+  var selection = area.selectAll()
+  switch(direction) {
+    case "left":
+
+      break;
+    case "up":
+
+      break;
+    case "right":
+
+      break;
+    default:
+      var line = area.lines[j];
+    
+      break;
+  }
+  return output;
+}

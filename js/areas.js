@@ -141,13 +141,12 @@ function isEmpty(area) {
     return false;
   }
   var j = 0;
-  while (!area.lines[j].trim()) {
-    j++;
-    if (j >= area.height - 1) {
-      return true;
+  for (var j = 0; j < area.height; j++) {
+    if (area.lines[j].trim()) {
+      return false;
     }
   }
-  return false;
+  return true;
 }
 
 function moveArea(area, x, y) {

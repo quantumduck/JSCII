@@ -43,6 +43,16 @@ function rootAreaInit(width, height) {
   return bg;
 }
 
+function clearEmptySelections(rootarea) {
+  var output = rootarea;
+  var topArea = rootarea.subAreas[rootarea.subAreas.length - 1];
+  while (topArea && topArea.isEmpty()) {
+    output.subAreas.pop();
+    topArea = output.subAreas[output.subAreas.length - 1];
+  }
+  return output;
+}
+
 function reorderSubArea(area, index, level) {
   var output = area;
   var subArea = area.subAreas[index];
