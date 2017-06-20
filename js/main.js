@@ -1,4 +1,5 @@
 window.options = {
+  // User settings:
   text: {
     direction: "right",
     lineDir: "down",
@@ -50,6 +51,7 @@ window.options = {
 };
 
 window.state = {
+  // User input state:
   action: "none", // Is mouse being moved with left button down?
   resizeType: "none", // If action is resize, which type of resize?
   startPoint: {x: 0, y: 0}, // Start of current selection
@@ -61,16 +63,13 @@ window.selection = false; // Current selection object (if one exists)
 window.rootarea = rootAreaInit(54, 31), // Drawing area
 
 $(function() {
-  //  For ease of programming, There is only one global object: root
-  // root has one method: redraw, which assigns its contents to the DOM
-  // None of the methods on root or its children change the object itself.
 
   redraw(window.rootarea, window.selection); // Write Drawing area object to DOM
 
   $('#drawing-area').on('click', function(e) {
     e.stopPropagation();
     e.preventDefault();
-    // When in select mode, remember point clicked and select that point
+    // Remember point clicked and select that point
     var point = getXY(e.pageX, e.pageY, window.rootarea);
     if(window.rootarea.hasPoint(point.x, point.y)) {
       console.log(point);
@@ -92,10 +91,10 @@ $(function() {
       console.log(point);
       console.log([e.pageX, e.pageY])
     }
-
   });
 
   $('body').on('click', function(e) {
+    // Clicking off drawing area removes selection
     window.selection = false;
     window.state.action = "none";
     redraw(window.rootarea, window.selection);
@@ -108,6 +107,8 @@ $(function() {
       var point = getXY(e.pageX, e.pageY, window.rootarea);
       var drawingData = false;
       if (window.state.action === "none") {
+        // This is the first entry into the function:
+        // We need to set the action
         window.state.endPoint = point;
         window.state.startPoint = point;
         if (window.selection) {
@@ -131,7 +132,7 @@ $(function() {
         // Draw something!
       } else if ((point.x !== window.state.endPoint.x) || (point.y !== window.state.endPoint.y)) {
         // The mouse has moved to a new square!
-
+        // perform the action required
 
       }
 
@@ -140,17 +141,15 @@ $(function() {
 
   $('#drawing-area').on('mouseup', function(e) {
     // Ensure selection is closed so new one can start
-    if (root.drawing) {
-      root.drawing = false;
-    }
+    window.state.action = "none";
   });
 
   $(window).on('keydown', function(e) {
     // Parsing the keyboard
     console.log(e.key);
     // Find area object to write new character to
-    if (root.selection) {
-      var area = root.area.subAreas[root.selection.index];
+    if (window.selection) {
+      var area = window.rootarea.subAreas[window.selection.index];
       if (!area) {
         // If not found, write to background object
         area = root.area;
