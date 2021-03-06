@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "declaration": true,
+        "forceConsistentCasingInFileNames": true,
+        "lib": ["es2018"],
+        "module": "ES2015",
+        "moduleResolution": "node",
+        "noEmitOnError": true,
+        "outDir": "tmp",
+        "pretty": true,
+        "rootDir": ".",
+        "sourceMap": true,
+        "strict": true,
+        "target": "ES2015"
+    },
+    "include": [
+      "src/**/*.ts",
+      "test/**/*.ts"
+    ],
+    "exclude": [
+      "node_modules"
+    ]
+}
