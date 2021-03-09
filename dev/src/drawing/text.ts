@@ -11,6 +11,7 @@ export interface IText {
     writeCharAt(char: string, rowIndex: number, colIndex: number, isOverwrite?: boolean): void;
     insertLineBreakAt(rowIndex: number, colIndex: number): void;
     deleteCharAt(rowIndex: number, colIndex: number): void;
+    getTextGrid(gridRows: number, gridColumns: number): string[][];
 };
 
 export class Text implements IText, HasData<TextData> {
@@ -64,5 +65,29 @@ export class Text implements IText, HasData<TextData> {
 
     getData() {
         return { content: this.content, style: this.style };
+    }
+
+    private arrangeTextNoWrap(rows: number, cols: number, overflowChar: string) {
+        const grid: string[][] = [];
+        
+        for (let ir = 0; ir < rows; ir++) {
+            grid.push([]);
+            for (let ic = 0; ic < cols; ic++) {
+                grid[ir][ic] = this.content[ir][ic] || ' ';
+            }
+            if (this.content[ir][cols]) {
+                grid[ir][cols - 1] = overflowChar;
+            }
+        }
+        if (this.content[rows]) {
+            grid[rows - 1][cols - 1] = overflowChar;
+        }
+
+        return grid;
+    }
+
+    getTextGrid(rowCount: number, colCount: number) {
+        // TODO: change this behvaiour according to text settings
+        return this.arrangeTextNoWrap(rowCount, colCount, "$");
     }
 }

@@ -3,6 +3,8 @@ import {TextPattern} from './interfaces';
 interface BasicStyle {
     pattern?: TextPattern;
     isWhitespaceTransparent?: boolean;
+    isOverflowHidden?: boolean;
+    isWrapped?: boolean;
 };
 
 enum TextDirection {
@@ -14,7 +16,13 @@ enum TextDirection {
     DOWN_LEFT,
     UP_RIGHT,
     UP_LEFT,
-};
+}
+
+enum TextOverflow {
+    NONE,
+    CUT,
+    WRAP,
+}
 
 export interface TextStyle {
     textDirection?: TextDirection;
